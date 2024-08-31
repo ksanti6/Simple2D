@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Graphics.h"
+#include "Player.h"
 
 
 void GlfwErrorCallback(int _errorCode, const char* _description)
@@ -8,8 +9,22 @@ void GlfwErrorCallback(int _errorCode, const char* _description)
 	printf(_description);
 }
 
-void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int mods)
+void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int _mods)
 {
+	(void)_scancode; (void)_mods;
+
+	if (_key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(_window, GLFW_TRUE);
+	}
+
+	if (_key == GLFW_KEY_R && _action == GLFW_PRESS)
+	{
+		//restart?
+	}
+
+	Player& player = Player::GetInstance();
+	player.Move(_key, _action);
 
 }
 
@@ -25,7 +40,7 @@ int main(void)
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	GLFWwindow* p_window;
-	p_window = glfwCreateWindow(800, 600, "Simple2DGame", nullptr, nullptr);
+	p_window = glfwCreateWindow(1600, 900, "Simple2DGame", nullptr, nullptr);
 
 	if (!p_window)
 	{
@@ -39,6 +54,9 @@ int main(void)
 	Graphics& graphics = Graphics::GetInstance();
 	graphics.Init(p_window);
 
+	Player& player = Player::GetInstance();
+	player.Init();
+
 
 	while (!glfwWindowShouldClose(p_window))
 	{
@@ -46,8 +64,8 @@ int main(void)
 		glfwPollEvents();
 		graphics.StartDraw();
 
-		graphics.Draw(Graphics::Textures::player, { 200, 300 }, { 0.5f, 0.5f });
-		graphics.Draw(Graphics::Textures::test, { 400, 300 }, { 0.5f, 0.5f });
+		player.Update();
+		graphics.Draw(Graphics::Textures::test, { 400, 300 }, { 1.0f, 1.0f });
 
 		graphics.EndDraw();
 	}

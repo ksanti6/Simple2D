@@ -309,7 +309,8 @@ void Graphics::StartDraw(void)
 void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, DirectX::SimpleMath::Vector2 _scale)
 {
 
-	DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture[_texture].Get());
+	//DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture[_texture].Get());
+	DirectX::XMUINT2 imageSize = { 100, 100 };
 	DirectX::SimpleMath::Vector2 origin = { imageSize.x / 2.0f, imageSize.y / 2.0f };
 
 	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(_texture), imageSize, _pos,
