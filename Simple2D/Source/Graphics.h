@@ -5,6 +5,8 @@
 #include<GLFW/glfw3.h> // for window
 #include<directxtk12/DescriptorHeap.h> //
 #include <memory>
+#include<directxtk12/SpriteBatch.h>
+#include<directxtk12/GraphicsMemory.h>
 
 using namespace Microsoft::WRL;
 
@@ -19,15 +21,27 @@ private:
 
 	HRESULT CreateSwapChain(void);
 
+	void LoadTexture();
+
 public:
 	HRESULT Init(GLFWwindow* _window);
+
+	void StartDraw(void);
+	void Draw(void);
+	void EndDraw(void);
+
 	void Shutdown(void);
 	static Graphics& GetInstance();
 
 private:
 	static constexpr int m_frameCount = 2; //only want to use 2 buffers
-	GLFWwindow* m_window;
+	int m_currentFrame = 0;
 
+	GLFWwindow* m_window;
+	int m_width;
+	int m_height;
+
+	//init stuff / draw stuff
 	ComPtr<IDXGIFactory3> m_factory;    //used to create objects
 	ComPtr<IDXGIAdapter3> m_adapter;    //represents the gpu
 	ComPtr<ID3D12Device> m_device;      //d3d functionality
@@ -49,4 +63,19 @@ private:
 	ComPtr<ID3D12Fence> m_SCFence; 
 	HANDLE m_SCFenceEvent;
 	int m_SCFenceValue;
+
+	//for texture loading
+	std::unique_ptr<DirectX::DescriptorHeap> m_dsvHeap; 
+	ComPtr<ID3D12Resource> m_texture;
+
+	enum Textures
+	{
+		Name,
+		Count
+	};
+
+	//for drawing
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	std::unique_ptr<DirectX::GraphicsMemory> m_memory;
+	
 };

@@ -2,8 +2,11 @@
 #include <iostream>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
-
-
+#include <d3dx12.h>
+#include <directxtk12/ResourceUploadBatch.h>
+#include <directxtk12/WICTextureLoader.h>
+#include <directxtk12/DirectXHelpers.h>
+#include <directxtk12/SimpleMath.h>
 
 //error checking macro
 #define RETURN_IF_FAILED(_func) \
@@ -17,15 +20,14 @@ return hr; \
 HRESULT Graphics::CreateSwapChain(void)
 {
 	HRESULT hr = S_OK;
-	int width = 0, height = 0;
 
-	glfwGetWindowSize(m_window, &width, &height);
+	glfwGetWindowSize(m_window, &m_width, &m_height);
 
 	//describing the properties of our swap chain (generic)
 	DXGI_SWAP_CHAIN_DESC1 swap_chain1
 	{
-		.Width = static_cast<UINT>(width),
-		.Height = static_cast<UINT>(height),
+		.Width = static_cast<UINT>(m_width),
+		.Height = static_cast<UINT>(m_height),
 		.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		.Stereo = false,
 		.SampleDesc = 
@@ -74,6 +76,44 @@ HRESULT Graphics::CreateSwapChain(void)
 
 
 	return hr;
+}
+
+//we want to load a texture, do the thing
+void Graphics::LoadTexture()
+{
+	std::wstring textPath = L"./Asset/TestAsset.png";
+
+	m_dsvHeap = std::make_unique<DirectX::DescriptorHeap>(m_device.Get(), Textures::Count);
+
+	DirectX::ResourceUploadBatch uploadBatch {m_device.Get()};
+
+	uploadBatch.Begin();
+
+	//describing our render target real quick
+	DirectX::RenderTargetState targetState =
+	{
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		DXGI_FORMAT_UNKNOWN
+	};
+
+	DirectX::SpriteBatchPipelineStateDescription batchDesc{ targetState };
+
+	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_device.Get(), uploadBatch, batchDesc);
+
+
+	//load the texture
+
+	DirectX::CreateWICTextureFromFile(m_device.Get(), uploadBatch, textPath.c_str(), &m_texture);
+
+	DirectX::CreateShaderResourceView(m_device.Get(), m_texture.Get(), m_dsvHeap->GetCpuHandle(
+		Textures::Name));
+
+	std::future<void> resourcesFinished = uploadBatch.End(m_comQ.Get());
+	resourcesFinished.wait();
+
+
+	//bc of comptrs we do not need to explicitly unload this
+
 }
 
 HRESULT Graphics::Init(GLFWwindow* _window)
@@ -153,8 +193,138 @@ HRESULT Graphics::Init(GLFWwindow* _window)
 
 	m_SCFenceEvent = CreateEvent(nullptr, false, false, nullptr);
 
+	m_memory = std::make_unique<DirectX::GraphicsMemory>(m_device.Get());
+
+
+
+	//load the textures we will use
+	LoadTexture();
+
+	
 
 	return hr;
+}
+
+void Graphics::StartDraw(void)
+{
+	//get ready to draw 
+	//ready the command list for recording
+	//clear the screen, etc
+	
+	//clearing current variables associates with current buffer/frame
+
+	ComPtr<ID3D12Fence>& fence = m_fence[m_currentFrame];
+
+	if (fence->GetCompletedValue() < m_fenceValue[m_currentFrame])
+	{
+		fence->SetEventOnCompletion(m_fenceValue[m_currentFrame], m_fenceEvent[m_currentFrame]);
+		WaitForSingleObject(m_fenceEvent[m_currentFrame], INFINITE);
+	}
+
+	ComPtr<ID3D12GraphicsCommandList>& command = m_comList[m_currentFrame];
+
+	m_comAllocator[m_currentFrame]->Reset();
+	command->Reset(m_comAllocator[m_currentFrame].Get(), nullptr);
+
+	//create and set the viewport
+	D3D12_VIEWPORT viewport =
+	{
+		.TopLeftX = 0,
+		.TopLeftY = 0,
+		.Width = static_cast<FLOAT>(m_width),
+		.Height = static_cast<FLOAT>(m_height),
+		.MinDepth = 0,
+		.MaxDepth = 1
+	};
+
+	command->RSSetViewports(1, &viewport);
+	m_spriteBatch->SetViewport(viewport);
+
+	D3D12_RECT rect =
+	{
+		.left = 0,
+		.top = 0,
+		.right = m_width,
+		.bottom = m_height
+	};
+
+	command->RSSetScissorRects(1, &rect);
+
+	//the color we will clear the screen with
+	const FLOAT clearColor[] = { 0,0,0,1 };
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_rtvHeap->GetCpuHandle(m_currentFrame);
+
+	//get into the drawable state
+	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		m_swapChainBuffers[m_currentFrame].Get(), D3D12_RESOURCE_STATE_PRESENT,
+		D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	command->ResourceBarrier(1, &barrier);
+
+	//clear this so we can draw on it
+	command->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+
+	command->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
+
+
+	ID3D12DescriptorHeap* heaps[] = { m_dsvHeap->Heap() };
+
+	command->SetDescriptorHeaps(1, heaps);
+	m_spriteBatch->Begin(command.Get());
+
+
+
+	//we are ready to draw now
+}
+
+void Graphics::Draw(void)
+{
+	DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture.Get());
+	DirectX::SimpleMath::Vector2 rect = { imageSize.x / 2.0f, imageSize.y / 2.0f };
+	DirectX::SimpleMath::Vector2 screenPos = { 400, 300 };
+
+	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(Textures::Name), imageSize, screenPos, 
+		nullptr, DirectX::Colors::White, 0.0f, rect);
+
+
+
+
+
+
+
+}
+
+void Graphics::EndDraw(void)
+{
+	m_spriteBatch->End();
+
+	ComPtr<ID3D12GraphicsCommandList>& command = m_comList[m_currentFrame];
+
+	//make me able to present, im done drawing
+	CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		m_swapChainBuffers[m_currentFrame].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PRESENT);
+
+	command->ResourceBarrier(1, &barrier);
+
+	command->Close();
+
+	ID3D12CommandList* lists[] = { command.Get() };
+
+	m_comQ->ExecuteCommandLists(1, lists);
+
+	++m_fenceValue[m_currentFrame];
+	m_comQ->Signal(m_fence[m_currentFrame].Get(), m_fenceValue[m_currentFrame]);
+
+	m_swapChain->Present(1, 0);
+
+	++m_SCFenceValue;
+	m_comQ->Signal(m_SCFence.Get(), m_SCFenceValue);
+
+	++m_currentFrame;
+
+	m_currentFrame %= m_frameCount;
 }
 
 void Graphics::Shutdown(void)
@@ -179,8 +349,6 @@ void Graphics::Shutdown(void)
 
 		CloseHandle(m_fenceEvent[k]);
 	}
-
-	
 }
 
 Graphics& Graphics::GetInstance()

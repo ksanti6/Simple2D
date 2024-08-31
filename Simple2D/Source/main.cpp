@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Graphics.h"
 
 
 void GlfwErrorCallback(int _errorCode, const char* _description)
@@ -21,11 +22,9 @@ int main(void)
 	}
 
 	glfwSetErrorCallback(GlfwErrorCallback);
-
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	GLFWwindow* p_window;
-
 	p_window = glfwCreateWindow(800, 600, "Simple2DGame", nullptr, nullptr);
 
 	if (!p_window)
@@ -37,13 +36,22 @@ int main(void)
 	glfwSetKeyCallback(p_window, GlfwKeyCallback);
 
 
+	Graphics& graphics = Graphics::GetInstance();
+	graphics.Init(p_window);
+
+
 	while (!glfwWindowShouldClose(p_window))
 	{
 		//do stuff
 		glfwPollEvents();
+		graphics.StartDraw();
+
+		graphics.Draw();
+
+		graphics.EndDraw();
 	}
 
-
+	graphics.Shutdown();
 	glfwDestroyWindow(p_window);
 	glfwTerminate();
 
