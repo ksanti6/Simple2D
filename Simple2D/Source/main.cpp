@@ -2,6 +2,8 @@
 #include <iostream>
 #include "Graphics.h"
 #include "Player.h"
+#include "Collision.h"
+#include "LevelGeneration.h"
 
 
 void GlfwErrorCallback(int _errorCode, const char* _description)
@@ -57,6 +59,9 @@ int main(void)
 	Player& player = Player::GetInstance();
 	player.Init();
 
+	LevelGeneration& level = LevelGeneration::GetInstance();
+	level.Init();
+
 
 	while (!glfwWindowShouldClose(p_window))
 	{
@@ -64,10 +69,13 @@ int main(void)
 		glfwPollEvents();
 		graphics.StartDraw();
 
+		level.DrawLevel();
 		player.Update();
-		graphics.Draw(Graphics::Textures::test, { 400, 300 }, { 1.0f, 1.0f });
+		graphics.Draw(Graphics::Textures::enemy, { 50, 50 }, { 1.0f, 1.0f });
 
 		graphics.EndDraw();
+
+		Collision::AABBCollision(player.GetPosition(), {100, 100}, {400, 300}, {100, 100});
 	}
 
 	graphics.Shutdown();

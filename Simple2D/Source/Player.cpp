@@ -54,3 +54,8 @@ Player& Player::GetInstance()
 	static Player player;
 	return player;
 }
+
+DirectX::SimpleMath::Vector2 Player::GetPosition(void)
+{
+	return m_position;
+}

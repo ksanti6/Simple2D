@@ -17,6 +17,9 @@ public:
 
 	static Player& GetInstance();
 
+	DirectX::SimpleMath::Vector2 GetPosition(void);
+
+
 private:
 	int m_score = 0;
 	int m_lives = 3;

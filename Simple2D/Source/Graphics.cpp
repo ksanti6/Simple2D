@@ -20,10 +20,13 @@ return hr; \
 const std::map<Graphics::Textures, std::wstring> textPaths =
 {
 	{
-		Graphics::Textures::player, L"./Asset/TestAsset.png"
+		Graphics::Textures::player, L"./Asset/HappyCircle.png"
 	},
 	{
-		Graphics::Textures::test, L"./Asset/AngryPentagon.png"
+		Graphics::Textures::enemy, L"./Asset/AngryPentagon.png"
+	},
+	{
+		Graphics::Textures::wall, L"./Asset/TestTile.png"
 	}
 };
 
@@ -294,16 +297,6 @@ void Graphics::StartDraw(void)
 	//we are ready to draw now
 }
 
-//void Graphics::Draw(void)
-//{
-//	DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture.Get());
-//	DirectX::SimpleMath::Vector2 rect = { imageSize.x / 2.0f, imageSize.y / 2.0f };
-//	DirectX::SimpleMath::Vector2 screenPos = { 400, 300 };
-//
-//	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(Textures::Name), imageSize, screenPos, 
-//		nullptr, DirectX::Colors::White, 0.0f, rect);
-//
-//}
 
 //scale is (1,1) thats normal size
 void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, DirectX::SimpleMath::Vector2 _scale)

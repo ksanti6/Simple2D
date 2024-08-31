@@ -27,15 +27,15 @@ private:
 public:
 	enum Textures
 	{
-		test,
 		player,
+		enemy,
+		wall,
 		Count
 	};
 
 	HRESULT Init(GLFWwindow* _window);
 
 	void StartDraw(void);
-	//void Draw(void);
 	void Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, 
 		DirectX::SimpleMath::Vector2 _scale);
 	void EndDraw(void);
