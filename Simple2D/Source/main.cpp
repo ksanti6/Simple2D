@@ -46,7 +46,8 @@ int main(void)
 		glfwPollEvents();
 		graphics.StartDraw();
 
-		graphics.Draw();
+		graphics.Draw(Graphics::Textures::player, { 200, 300 }, { 0.5f, 0.5f });
+		graphics.Draw(Graphics::Textures::test, { 400, 300 }, { 0.5f, 0.5f });
 
 		graphics.EndDraw();
 	}

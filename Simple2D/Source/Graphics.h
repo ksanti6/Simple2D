@@ -7,6 +7,7 @@
 #include <memory>
 #include<directxtk12/SpriteBatch.h>
 #include<directxtk12/GraphicsMemory.h>
+#include <directxtk12/SimpleMath.h>
 
 using namespace Microsoft::WRL;
 
@@ -24,10 +25,19 @@ private:
 	void LoadTexture();
 
 public:
+	enum Textures
+	{
+		test,
+		player,
+		Count
+	};
+
 	HRESULT Init(GLFWwindow* _window);
 
 	void StartDraw(void);
-	void Draw(void);
+	//void Draw(void);
+	void Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, 
+		DirectX::SimpleMath::Vector2 _scale);
 	void EndDraw(void);
 
 	void Shutdown(void);
@@ -66,13 +76,9 @@ private:
 
 	//for texture loading
 	std::unique_ptr<DirectX::DescriptorHeap> m_dsvHeap; 
-	ComPtr<ID3D12Resource> m_texture;
+	ComPtr<ID3D12Resource> m_texture[Textures::Count];
 
-	enum Textures
-	{
-		Name,
-		Count
-	};
+	
 
 	//for drawing
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;

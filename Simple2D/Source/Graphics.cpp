@@ -6,7 +6,8 @@
 #include <directxtk12/ResourceUploadBatch.h>
 #include <directxtk12/WICTextureLoader.h>
 #include <directxtk12/DirectXHelpers.h>
-#include <directxtk12/SimpleMath.h>
+#include <map>
+
 
 //error checking macro
 #define RETURN_IF_FAILED(_func) \
@@ -15,6 +16,18 @@ if(FAILED(hr = _func)) { \
  printf_s("ERROR: DX12: %d.\n", hr);\
 return hr; \
 }
+
+const std::map<Graphics::Textures, std::wstring> textPaths =
+{
+	{
+		Graphics::Textures::player, L"./Asset/TestAsset.png"
+	},
+	{
+		Graphics::Textures::test, L"./Asset/AngryPentagon.png"
+	}
+};
+
+
 
 
 HRESULT Graphics::CreateSwapChain(void)
@@ -78,11 +91,10 @@ HRESULT Graphics::CreateSwapChain(void)
 	return hr;
 }
 
+
 //we want to load a texture, do the thing
 void Graphics::LoadTexture()
 {
-	std::wstring textPath = L"./Asset/TestAsset.png";
-
 	m_dsvHeap = std::make_unique<DirectX::DescriptorHeap>(m_device.Get(), Textures::Count);
 
 	DirectX::ResourceUploadBatch uploadBatch {m_device.Get()};
@@ -102,11 +114,15 @@ void Graphics::LoadTexture()
 
 
 	//load the texture
+	for (auto& k : textPaths)
+	{
+		DirectX::CreateWICTextureFromFile(m_device.Get(), uploadBatch, k.second.c_str(), &m_texture[k.first]);
 
-	DirectX::CreateWICTextureFromFile(m_device.Get(), uploadBatch, textPath.c_str(), &m_texture);
+		DirectX::CreateShaderResourceView(m_device.Get(), m_texture[k.first].Get(), m_dsvHeap->GetCpuHandle(
+			k.first));
+	}
 
-	DirectX::CreateShaderResourceView(m_device.Get(), m_texture.Get(), m_dsvHeap->GetCpuHandle(
-		Textures::Name));
+	
 
 	std::future<void> resourcesFinished = uploadBatch.End(m_comQ.Get());
 	resourcesFinished.wait();
@@ -278,21 +294,26 @@ void Graphics::StartDraw(void)
 	//we are ready to draw now
 }
 
-void Graphics::Draw(void)
+//void Graphics::Draw(void)
+//{
+//	DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture.Get());
+//	DirectX::SimpleMath::Vector2 rect = { imageSize.x / 2.0f, imageSize.y / 2.0f };
+//	DirectX::SimpleMath::Vector2 screenPos = { 400, 300 };
+//
+//	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(Textures::Name), imageSize, screenPos, 
+//		nullptr, DirectX::Colors::White, 0.0f, rect);
+//
+//}
+
+//scale is (1,1) thats normal size
+void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, DirectX::SimpleMath::Vector2 _scale)
 {
-	DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture.Get());
-	DirectX::SimpleMath::Vector2 rect = { imageSize.x / 2.0f, imageSize.y / 2.0f };
-	DirectX::SimpleMath::Vector2 screenPos = { 400, 300 };
 
-	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(Textures::Name), imageSize, screenPos, 
-		nullptr, DirectX::Colors::White, 0.0f, rect);
+	DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture[_texture].Get());
+	DirectX::SimpleMath::Vector2 origin = { imageSize.x / 2.0f, imageSize.y / 2.0f };
 
-
-
-
-
-
-
+	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(_texture), imageSize, _pos,
+		nullptr, DirectX::Colors::White, 0.0f, origin, _scale);
 }
 
 void Graphics::EndDraw(void)
