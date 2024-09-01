@@ -20,6 +20,14 @@ private:
 		bool operator()(const Grid::Node* _nodeA, const Grid::Node* _nodeB) const;
 	};
 
+	Grid::Node* GetNextNode(void);
+
+	void AddChild(Grid::Node* _node, uint8_t _direction);
+
+	float CalculateCost(Grid::Node* _node);
+
+	void InsertNode(Grid::Node* _node);
+
 public:
 
 	struct Request
@@ -33,16 +41,9 @@ public:
 	};
 	static PathingAlgorithm& GetInstance(void);
 
+	void Init(void);
+
 	bool TheAlgorithm(Request& _request);
-
-	Grid::Node* GetNextNode(void);
-
-	void AddChild(Grid::Node* _node, uint8_t _direction);
-
-	float CalculateCost(Grid::Node* _node);
-
-	void InsertNode(Grid::Node* _node);
-
 
 private:
 	DirectX::XMUINT2 m_target;

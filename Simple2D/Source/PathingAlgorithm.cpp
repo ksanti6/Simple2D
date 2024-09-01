@@ -16,6 +16,11 @@ PathingAlgorithm& PathingAlgorithm::GetInstance(void)
 	return path;
 }
 
+void PathingAlgorithm::Init(void)
+{
+	m_sortedOpenList = std::priority_queue<Grid::Node*, std::vector<Grid::Node*>, Compare>(Compare(), m_openList);
+}
+
 bool PathingAlgorithm::TheAlgorithm(Request& _request)
 {
 	Grid& grid = Grid::GetInstance();
@@ -24,6 +29,7 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 
 	if (_request.isNewRequest)
 	{
+		_request.isNewRequest = false;
 		//initialie everything and clear open lists
 
 		m_target = _request.m_target;
@@ -39,7 +45,7 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 
 	}
 	
-	while (!m_openList.empty())
+	while (!m_sortedOpenList.empty())
 	{
 		Grid::Node* parent = GetNextNode();
 
@@ -65,11 +71,11 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 
 		uint8_t pDir = parent->m_directions;
 
-		for (uint8_t dir = 1; dir <= Grid::NodeDirections::DownLeft; dir <<= 1)
+		for (uint16_t dir = 1; dir <= Grid::NodeDirections::DownLeft; dir <<= 1)
 		{
 			if (pDir & dir)
 			{
-				AddChild(parent, dir);
+				AddChild(parent, static_cast<uint8_t>(dir));
 			}
 		}
 	}

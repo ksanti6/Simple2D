@@ -1,10 +1,17 @@
 #pragma once
 #include<directxtk12/SimpleMath.h>
+#include "PathingAlgorithm.h"
 
 class Enemy
 {
 private:
-	explicit Enemy() {}
+	explicit Enemy() 
+	{
+		m_speed = 0.0f;
+		m_minDistance = 0.0f;
+		m_pathCalculationComplete = false;
+		m_takingPathComplete = false;
+	}
 	Enemy(const Enemy&) = delete;
 	void operator= (const Enemy&) = delete;
 
@@ -29,7 +36,12 @@ public:
 	DirectX::SimpleMath::Vector2 GetSize(void);
 
 private:
-	float m_speed = 5.0f;
+	float m_speed;
+	bool m_pathCalculationComplete;
+	bool m_takingPathComplete;
+	float m_minDistance;
+	PathingAlgorithm::Request m_currentRequest;
+
 	DirectX::SimpleMath::Vector2 m_position;
 	
 

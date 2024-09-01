@@ -3,6 +3,7 @@
 #include "LevelGeneration.h"
 #include "Collision.h"
 #include "Enemy.h"
+#include "PathingAlgorithm.h"
 
 GameScene& GameScene::GetInstance(void)
 {
@@ -20,6 +21,9 @@ void GameScene::Init(void)
 
 	LevelGeneration& level = LevelGeneration::GetInstance();
 	level.Init();
+
+	PathingAlgorithm& algorithm = PathingAlgorithm::GetInstance();
+	algorithm.Init();
 
 	m_timer = 100;
 	m_waitTimer = 0;

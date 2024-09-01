@@ -1,6 +1,6 @@
 #include "Enemy.h"
 #include "Graphics.h"
-#include "PathingAlgorithm.h"
+
 #include "Player.h"
 #include "Grid.h"
 
@@ -10,11 +10,45 @@ void Enemy::Init(void)
 	m_speed = 200.0f;
 	m_previousPos = { 400, 300 };
 	m_imageSize = { 50, 50 };
+	m_pathCalculationComplete = true;
+	m_takingPathComplete = true;
+	m_minDistance = 5.0f;
 }
 
 void Enemy::Update(float _deltaTime)
 {
 	//enemy pathing ai - astar?
+	Grid& grid = Grid::GetInstance();
+
+	if (!m_takingPathComplete)
+	{
+		// go the path
+
+		DirectX::SimpleMath::Vector2 target = grid.GridtoWorld(m_currentRequest.m_finalPath.front());
+
+		if ((abs(m_position.x - target.x) <= m_minDistance) &&
+			(abs(m_position.y - target.y) <= m_minDistance))
+		{
+			m_currentRequest.m_finalPath.erase(m_currentRequest.m_finalPath.begin());
+
+			if (m_currentRequest.m_finalPath.size() == 0)
+			{
+				m_takingPathComplete = true;
+				return;
+			}
+			
+			target = grid.GridtoWorld(m_currentRequest.m_finalPath.front());
+		}
+
+		DirectX::SimpleMath::Vector2 direction = target - m_position;
+
+		direction.Normalize();
+		m_position += direction * 200.0f * _deltaTime;
+	}
+	else
+	{
+		FollowPlayer();
+	}
 }
 
 void Enemy::Draw(void)
@@ -32,11 +66,21 @@ void Enemy::FollowPlayer(void)
 {
 	Grid& grid = Grid::GetInstance();
 	Player& player = Player::GetInstance();
-	PathingAlgorithm::Request request;
+	PathingAlgorithm& algorithm = PathingAlgorithm::GetInstance();
 
-	request.isNewRequest = true;
-	request.m_target = grid.WorldtoGrid(player.GetPosition());
-	request.m_start = grid.WorldtoGrid(m_position);
+	if (m_takingPathComplete && m_pathCalculationComplete)
+	{
+		m_currentRequest.isNewRequest = true;
+		m_currentRequest.m_target = grid.WorldtoGrid(player.GetPosition());
+		m_currentRequest.m_start = grid.WorldtoGrid(m_position);
+	}
+
+	m_pathCalculationComplete =  algorithm.TheAlgorithm(m_currentRequest);
+
+	if (m_pathCalculationComplete)
+	{
+		m_takingPathComplete = false;
+	}
 
 
 }

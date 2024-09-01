@@ -134,7 +134,7 @@ void LevelGeneration::Update(void)
 		//check for enemy colliding against walls
 		isColliding = Collision::CheckCollision(enemy.GetPosition(),
 			enemy.GetSize(), m_wallPositions[k], m_imageSize);
-
+		
 		if (isColliding)
 		{
 			enemy.ResolveWallCollision(m_wallPositions[k],m_imageSize);
