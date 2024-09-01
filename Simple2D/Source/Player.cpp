@@ -27,7 +27,7 @@ void Player::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
 
-	graphics.Draw(Graphics::Textures::wall, m_position, m_scale);
+	graphics.Draw(Graphics::Textures::player, m_position, m_scale);
 }
 
 void Player::Shutdown(void)
@@ -86,7 +86,7 @@ void Player::Move(int _key, int _action)
 		
 
 	//m_direction.Normalize();
-	m_direction.Clamp({ -1, -1 }, { 1, 1 });;;;;;;;;;
+	m_direction.Clamp({ -1, -1 }, { 1, 1 });
 }
 
 
@@ -107,45 +107,33 @@ void Player::SetPosition(DirectX::SimpleMath::Vector2 _position)
 	m_previousPos = _position;
 }
 
+
 void Player::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition, 
 	DirectX::SimpleMath::Vector2 _BWidthHeight)
 {
-	//undo movement
-
-	int distance = 0;
-
-	distance = abs(m_position.x - _BPosition.x);
-
-	DirectX::SimpleMath::Vector2 velocity = m_position - m_previousPos;
-	DirectX::SimpleMath::Vector2 velNormal = velocity;
-	velNormal.Normalize();
-
-	float xOverlap = ((m_width + _BWidthHeight.x) / 2.0f) - distance;
-	if (xOverlap > 0)
+	DirectX::SimpleMath::Vector2 v = m_position - _BPosition;
+	if (abs(v.x) > abs(v.y))
 	{
-		
-		//velocity.x = _BPosition.x - (m_position.x + m_width);
-		velocity.x -= xOverlap * velNormal.x;
-
-
-		//if (m_position.x > _BPosition.x)
-		//{
-		//	m_position.x += (((m_width + _BWidthHeight.x) / 2.0f) - distance);
-		//}
-		//else
-		//{
-		//	m_posit ion.x -= (((m_width + _BWidthHeight.x) / 2.0f) - distance);
-		//}
+		if (v.x > 0) // right
+		{
+			m_position.x += ((m_width + _BWidthHeight.x) / 2.0f) - abs(v.x);
+		}
+		else // left
+		{
+			m_position.x -= ((m_width + _BWidthHeight.x) / 2.0f) - abs(v.x);
+		}
 	}
-	
-	distance = abs(m_position.y - _BPosition.y);
-	float yOverlap = ((m_height + _BWidthHeight.y) / 2.0f) - distance;
-	if (yOverlap > 0)
+	else
 	{
-		velocity.y -= yOverlap * velNormal.y;
+		if (v.y > 0) // top
+		{
+			m_position.y += ((m_height + _BWidthHeight.y) / 2.0f) - abs(v.y);
+		}
+		else // bottom
+		{
+			m_position.y -= ((m_height + _BWidthHeight.y) / 2.0f) - abs(v.y);
+		}
 	}
-
-	m_position = m_previousPos + velocity;
 }
 
 void Player::ResolveEnemyCollision(void)

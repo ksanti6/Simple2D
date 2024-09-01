@@ -17,7 +17,7 @@ void Enemy::Update(float _deltaTime)
 void Enemy::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
-	graphics.Draw(Graphics::Textures::wall, { 400, 300 }, { 1.0f, 1.0f });
+	graphics.Draw(Graphics::Textures::enemy, m_position, { 1.0f, 1.0f });
 }
 
 void Enemy::Shutdown(void)

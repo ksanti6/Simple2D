@@ -1,6 +1,8 @@
 #include "LevelGeneration.h"
 #include "Graphics.h"
 #include <iostream>
+#include "Player.h"
+#include "Enemy.h"
 
 void LevelGeneration::ReadFromFile(void)
 {
@@ -25,6 +27,9 @@ void LevelGeneration::ReadFromFile(void)
 	int currentWidth = 1;
 	int currentHeight = 1;
 
+	Player& player = Player::GetInstance();
+	Enemy& enemy = Enemy::GetInstance();
+
 
 	while (file)
 	{
@@ -35,6 +40,14 @@ void LevelGeneration::ReadFromFile(void)
 		if (value == 1)
 		{
 			m_wallPositions.push_back(currentPos);
+		}
+		else if (value == 2)
+		{
+			player.SetPosition(currentPos);
+		}
+		else if (value == 3)
+		{
+			enemy.SetPosition(currentPos);
 		}
 
 		///std::cout << currentPos.x << " , " << currentPos.y << "\n";
@@ -92,4 +105,9 @@ void LevelGeneration::DrawLevel(void)
 void LevelGeneration::Shutdown(void)
 {
 	m_wallPositions.clear();
+}
+
+std::vector<DirectX::SimpleMath::Vector2> LevelGeneration::GetWallPositions(void)
+{
+	return m_wallPositions;
 }

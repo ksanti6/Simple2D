@@ -1,5 +1,5 @@
 #pragma once
-
+#include <directxtk12/SimpleMath.h>
 
 class GameScene
 {
@@ -14,4 +14,7 @@ public:
 	void Init(void);
 	void Update(float _deltaTime);
 	void Shutdown(void);
+
+private:
+	DirectX::SimpleMath::Vector2 m_tileSize;
 };

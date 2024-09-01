@@ -5,7 +5,7 @@
 
 namespace Collision
 {
-	bool AABBCollision(DirectX::SimpleMath::Vector2 _APosition, 
+	bool CheckCollision(DirectX::SimpleMath::Vector2 _APosition, 
 		DirectX::SimpleMath::Vector2 _AWidthHeight, 
 		DirectX::SimpleMath::Vector2 _BPosition, 
 		DirectX::SimpleMath::Vector2 _BWidthHeight)
@@ -20,7 +20,7 @@ namespace Collision
 			return false;
 		}
 
-		printf_s("collision\n");
+		//printf_s("collision\n");
 		return true;
 	}
 

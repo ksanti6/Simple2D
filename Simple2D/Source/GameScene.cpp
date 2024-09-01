@@ -12,6 +12,8 @@ GameScene& GameScene::GetInstance(void)
 
 void GameScene::Init(void)
 {
+	m_tileSize = { 100, 100 };
+
 	Player& player = Player::GetInstance();
 	player.Init();
 
@@ -32,12 +34,38 @@ void GameScene::Update(float _deltaTime)
 	player.Update(_deltaTime);
 	enemy.Update(_deltaTime);
 
-	bool temp = Collision::AABBCollision(player.GetPosition(), { 100, 100 }, { 400, 300 }, { 100, 100 });
+	bool isColliding = false;
 
-	if (temp)
+	for (int k = 0; k < level.GetWallPositions().size(); ++k)
 	{
-		player.ResolveWallCollision({ 400, 300 }, { 100, 100 });
+		//check for player colliding against walls
+		isColliding = Collision::CheckCollision(player.GetPosition(),
+			m_tileSize, level.GetWallPositions()[k], m_tileSize);
+
+		if (isColliding)
+		{
+			player.ResolveWallCollision(level.GetWallPositions()[k], m_tileSize);
+		}
+
+
+		//check for enemy colliding against walls
+		//isColliding = Collision::CheckCollision(enemy.GetPosition(),
+		//	m_tileSize, level.GetWallPositions()[k], m_tileSize);
+		//
+		//if (isColliding)
+		//{
+		//	enemy.ResolveWallCollision(level.GetWallPositions()[k], m_tileSize);
+		//}
 	}
+
+	isColliding = Collision::CheckCollision(player.GetPosition(),
+		m_tileSize, enemy.GetPosition(), m_tileSize);
+
+	if (isColliding)
+	{
+		player.ResolveEnemyCollision();
+	}
+
 
 	player.Draw();
 	enemy.Draw();

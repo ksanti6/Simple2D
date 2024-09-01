@@ -21,6 +21,7 @@ public:
 
 	void Shutdown(void);
 
+	std::vector<DirectX::SimpleMath::Vector2> GetWallPositions(void);
 
 private:
 
