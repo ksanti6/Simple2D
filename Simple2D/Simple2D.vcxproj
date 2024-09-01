@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Collision.cpp" />
+    <ClCompile Include="Source\Enemy.cpp" />
     <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\Graphics.cpp" />
     <ClCompile Include="Source\LevelGeneration.cpp" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Collision.h" />
+    <ClInclude Include="Source\Enemy.h" />
     <ClInclude Include="Source\GameScene.h" />
     <ClInclude Include="Source\Graphics.h" />
     <ClInclude Include="Source\LevelGeneration.h" />

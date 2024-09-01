@@ -329,6 +329,8 @@ void Graphics::EndDraw(void)
 
 	m_comQ->ExecuteCommandLists(1, lists);
 
+	m_memory->Commit(m_comQ.Get());
+
 	++m_fenceValue[m_currentFrame];
 	m_comQ->Signal(m_fence[m_currentFrame].Get(), m_fenceValue[m_currentFrame]);
 

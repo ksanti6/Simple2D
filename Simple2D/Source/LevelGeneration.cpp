@@ -37,7 +37,7 @@ void LevelGeneration::ReadFromFile(void)
 			m_wallPositions.push_back(currentPos);
 		}
 
-		std::cout << currentPos.x << " , " << currentPos.y << "\n";
+		///std::cout << currentPos.x << " , " << currentPos.y << "\n";
 
 		++currentWidth;
 		currentPos.x += 100;
