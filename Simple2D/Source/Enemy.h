@@ -15,6 +15,9 @@ public:
 	void Shutdown(void);
 
 
+	void FollowPlayer(void);
+
+
 	static Enemy& GetInstance();
 
 	DirectX::SimpleMath::Vector2 GetPosition(void);
@@ -28,9 +31,9 @@ public:
 private:
 	float m_speed = 5.0f;
 	DirectX::SimpleMath::Vector2 m_position;
-	DirectX::SimpleMath::Vector2 m_scale;
+	
 
-	DirectX::SimpleMath::Vector2 m_size;
+	DirectX::SimpleMath::Vector2 m_imageSize;
 
 
 	DirectX::SimpleMath::Vector2 m_previousPos;

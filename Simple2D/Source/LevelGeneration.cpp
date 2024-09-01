@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Collision.h"
+#include "Grid.h"
 
 void LevelGeneration::ReadFromFile(void)
 {
@@ -18,18 +19,21 @@ void LevelGeneration::ReadFromFile(void)
 	//first 2 values = wdith x height of map
 	if (file)
 	{
-		fscanf_s(file, "%i", &m_tilesW);
-		fscanf_s(file, "%i", &m_tilesH);
+		fscanf_s(file, "%i", &m_mapWidth);
+		fscanf_s(file, "%i", &m_mapHeight);
 	}
 	
 
 
-	DirectX::SimpleMath::Vector2 currentPos = { 50,50 };
-	int currentWidth = 1;
-	int currentHeight = 1;
+	DirectX::SimpleMath::Vector2 currentPos = { 25,25 };
+	uint32_t currentWidth = 0;
+	uint32_t currentHeight = 0;
 
 	Player& player = Player::GetInstance();
 	Enemy& enemy = Enemy::GetInstance();
+	Grid& grid = Grid::GetInstance();
+
+	grid.SetWidthAndHeight(m_mapWidth, m_mapHeight);
 
 
 	while (file)
@@ -37,52 +41,61 @@ void LevelGeneration::ReadFromFile(void)
 		int value = -1;
 		fscanf_s(file, "%i", &value);
 
+		
 
 		if (value == 1)
 		{
 			m_wallPositions.push_back(currentPos);
+			grid.AddNodeByPosition({currentWidth, currentHeight}, false);
 		}
-		else if (value == 2)
+		else
 		{
-			player.SetPosition(currentPos);
-		}
-		else if (value == 3)
-		{
-			enemy.SetPosition(currentPos);
-		}
-		else if (value == 4)
-		{
-			Cheese temp(currentPos, 100);
-			m_cheese.push_back(temp);
+			grid.AddNodeByPosition({currentWidth, currentHeight}, true);
 
+			if (value == 2)
+			{
+				player.SetPosition(currentPos);
+			}
+			else if (value == 3)
+			{
+				enemy.SetPosition(currentPos);
+			}
+			else if (value == 4)
+			{
+				Cheese temp(currentPos, 100);
+				m_cheese.push_back(temp);
+
+			}
 		}
+		
 
 		///std::cout << currentPos.x << " , " << currentPos.y << "\n";
 
 		++currentWidth;
-		currentPos.x += 100;
+		currentPos.x += 50;
 
-		if (currentWidth > m_tilesW)
+		if (currentWidth >= m_mapWidth)
 		{
-			currentWidth = 1;
+			currentWidth = 0;
 			++currentHeight;
-			currentPos.x = 50;
-			currentPos.y += 100;
+			currentPos.x = 25;
+			currentPos.y += 50;
 		}
 
-		if (currentHeight > m_tilesH)
+		if (currentHeight >= m_mapHeight)
 		{
 			break;
 		}
 
 	}
 
-	//first pos is 50,50 then adjust by 100
 
 	if (file)
 	{
 		fclose(file);
 	}
+
+	grid.OnGridFinish();
 }
 
 LevelGeneration& LevelGeneration::GetInstance(void)
@@ -94,8 +107,7 @@ LevelGeneration& LevelGeneration::GetInstance(void)
 void LevelGeneration::Init(void)
 {
 	m_filePath = "./Asset/TestLevel.txt";
-	m_scale = { 1, 1 };
-	m_size = { 100, 100 };
+	m_imageSize = { 50, 50 };
 
 	ReadFromFile();
 }
@@ -111,28 +123,28 @@ void LevelGeneration::Update(void)
 	{
 		//check for player colliding against walls
 		isColliding = Collision::CheckCollision(player.GetPosition(),
-			player.GetSize(), m_wallPositions[k], m_size);
+			player.GetSize(), m_wallPositions[k], m_imageSize);
 
 		if (isColliding)
 		{
-			player.ResolveWallCollision(m_wallPositions[k], m_size);
+			player.ResolveWallCollision(m_wallPositions[k], m_imageSize);
 		}
 
 
 		//check for enemy colliding against walls
 		isColliding = Collision::CheckCollision(enemy.GetPosition(),
-			enemy.GetSize(), m_wallPositions[k], m_size);
+			enemy.GetSize(), m_wallPositions[k], m_imageSize);
 
 		if (isColliding)
 		{
-			enemy.ResolveWallCollision(m_wallPositions[k],m_size);
+			enemy.ResolveWallCollision(m_wallPositions[k],m_imageSize);
 		}
 	}
 
 	for (int k = 0; k < m_cheese.size(); ++k)
 	{
 		isColliding = Collision::CheckCollision(player.GetPosition(),
-			player.GetSize(), m_cheese[k].GetPosition(), m_size);
+			player.GetSize(), m_cheese[k].GetPosition(), m_imageSize);
 
 		if (isColliding)
 		{
@@ -157,12 +169,12 @@ void LevelGeneration::Draw(void)
 
 	for (int k = 0; k < m_wallPositions.size(); ++k)
 	{
-		graphics.Draw(Graphics::Textures::wall, m_wallPositions[k], m_scale);
+		graphics.Draw(Graphics::Textures::wall, m_wallPositions[k], m_imageSize);
 	}
 
 	for (int k = 0; k < m_cheese.size(); ++k)
 	{
-		graphics.Draw(Graphics::Textures::cheese, m_cheese[k].GetPosition(), m_scale);
+		graphics.Draw(Graphics::Textures::cheese, m_cheese[k].GetPosition(), m_imageSize);
 	}
 }
 
@@ -179,4 +191,9 @@ std::vector<DirectX::SimpleMath::Vector2> LevelGeneration::GetWallPositions(void
 std::vector<Cheese> LevelGeneration::GetCheese(void)
 {
 	return m_cheese;
+}
+
+DirectX::SimpleMath::Vector2 LevelGeneration::GetSize(void)
+{
+	return m_imageSize;
 }

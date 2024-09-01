@@ -4,7 +4,11 @@
 class GameScene
 {
 private:
-	explicit GameScene() {}
+	explicit GameScene()
+	{
+		m_timer = 0.0f;
+		m_waitTimer = 0;
+	}
 	GameScene(const GameScene&) = delete;
 	void operator=(const GameScene&) = delete;
 
@@ -18,4 +22,7 @@ public:
 
 private:
 	
+	float m_timer;
+	int m_waitTimer;
+
 };

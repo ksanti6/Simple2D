@@ -30,6 +30,12 @@ const std::map<Graphics::Textures, std::wstring> textPaths =
 	},
 	{
 		Graphics::Textures::cheese, L"./Asset/TestCheese.png"
+	},
+	{
+		Graphics::Textures::win, L"./Asset/Win.png"
+	},
+	{
+		Graphics::Textures::lose, L"./Asset/Lose.png"
 	}
 };
 
@@ -140,6 +146,8 @@ void Graphics::LoadTexture()
 
 HRESULT Graphics::Init(GLFWwindow* _window)
 {
+	m_scale = { 1,1 };
+
 	//save window for later
 	m_window = _window;
 
@@ -302,15 +310,13 @@ void Graphics::StartDraw(void)
 
 
 //scale is (1,1) thats normal size
-void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, DirectX::SimpleMath::Vector2 _scale)
+void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, DirectX::SimpleMath::Vector2 _imageSize)
 {
-
-	//DirectX::XMUINT2 imageSize = DirectX::GetTextureSize(m_texture[_texture].Get());
-	DirectX::XMUINT2 imageSize = { 100, 100 };
+	DirectX::XMUINT2 imageSize = { static_cast<uint32_t>(_imageSize.x), static_cast<uint32_t>(_imageSize.y)};
 	DirectX::SimpleMath::Vector2 origin = { imageSize.x / 2.0f, imageSize.y / 2.0f };
 
 	m_spriteBatch->Draw(m_dsvHeap->GetGpuHandle(_texture), imageSize, _pos,
-		nullptr, DirectX::Colors::White, 0.0f, origin, _scale);
+		nullptr, DirectX::Colors::White, 0.0f, origin, m_scale);
 }
 
 void Graphics::EndDraw(void)

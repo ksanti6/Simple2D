@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "GameScene.h"
 
+#include "Grid.h"
 
 
 void GlfwErrorCallback(int _errorCode, const char* _description)
@@ -30,6 +31,23 @@ void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, 
 	}
 
 	Player& player = Player::GetInstance();
+	if (_key == GLFW_KEY_T && _action == GLFW_PRESS)
+	{
+		//restart?
+		Grid& grid = Grid::GetInstance();
+
+		printf_s("Player Position is: %f %f \n", player.GetPosition().x, player.GetPosition().y);
+
+		DirectX::XMUINT2 g = grid.WorldtoGrid(player.GetPosition());
+
+		printf_s("World to Grid: %i %i \n", g.x, g.y);
+		DirectX::SimpleMath::Vector2 b = grid.GridtoWorld(g);
+
+		printf_s("Grid to World: %f %f\n", b.x, b.y);
+
+	}
+
+	
 	player.Move(_key, _action);
 
 }
@@ -64,8 +82,8 @@ int main(void)
 	game.Init();
 
 
-	float startTime = glfwGetTime();
-	float endTime = glfwGetTime();
+	float startTime = static_cast<float>(glfwGetTime());
+	float endTime = static_cast<float>(glfwGetTime());
 	float deltaTime = 0.0f;
 
 	while (!glfwWindowShouldClose(p_window))
@@ -73,14 +91,14 @@ int main(void)
 		//do stuff
 		glfwPollEvents();
 
-		startTime = glfwGetTime();
+		startTime = static_cast<float>(glfwGetTime());
 		graphics.StartDraw();
 
 		game.Update(deltaTime);
 		game.Draw();
 
 		graphics.EndDraw();
-		endTime = glfwGetTime();
+		endTime = static_cast<float>(glfwGetTime());
 		deltaTime = endTime - startTime;
 		
 	}

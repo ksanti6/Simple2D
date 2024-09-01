@@ -1,17 +1,28 @@
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Player.cpp
+* Purpose: hold the implementation of the player singleton (behaviors, etc)
+*
+**********************************************************************************************************************/
 #include "Player.h"
-#include "Graphics.h"
-#include <GLFW/glfw3.h>
-#include <math.h>
+#include "Graphics.h"        //for drawing
+#include <GLFW/glfw3.h>      //for input
 
+
+/************************************************
+* 
+* Initialize the values of the player
+* 
+************************************************/
 void Player::Init(void)
 {
 	m_score = 0;
 	m_lives = 3;
-	m_position = { 200, 300 };
-	m_scale = { 1, 1 };
+	m_position = { 0, 0 };
 	m_speed = 200.0f;
-	m_previousPos = { 200, 300 };
-	m_size = { 100, 100 };
+	m_previousPos = { 0, 0 };
+	m_imageSize = { 50, 50 };
 
 	printf_s("Player Lives: %i\n", m_lives);
 }
@@ -30,7 +41,7 @@ void Player::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
 
-	graphics.Draw(Graphics::Textures::player, m_position, m_scale);
+	graphics.Draw(Graphics::Textures::player, m_position, m_imageSize);
 }
 
 void Player::Shutdown(void)
@@ -119,22 +130,22 @@ void Player::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 	{
 		if (v.x > 0) // right
 		{
-			m_position.x += ((m_size.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
+			m_position.x += ((m_imageSize.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
 		}
 		else // left
 		{
-			m_position.x -= ((m_size.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
+			m_position.x -= ((m_imageSize.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
 		}
 	}
 	else
 	{
 		if (v.y > 0) // top
 		{
-			m_position.y += ((m_size.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
+			m_position.y += ((m_imageSize.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
 		}
 		else // bottom
 		{
-			m_position.y -= ((m_size.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
+			m_position.y -= ((m_imageSize.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
 		}
 	}
 }
@@ -165,7 +176,7 @@ void Player::AdjustScore(int _value)
 
 DirectX::SimpleMath::Vector2 Player::GetSize(void)
 {
-	return m_size;
+	return m_imageSize;
 }
 
 

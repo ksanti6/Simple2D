@@ -1,13 +1,15 @@
 #include "Enemy.h"
 #include "Graphics.h"
+#include "PathingAlgorithm.h"
+#include "Player.h"
+#include "Grid.h"
 
 void Enemy::Init(void)
 {
 	m_position = { 400, 300 };
-	m_scale = { 1, 1 };
 	m_speed = 200.0f;
 	m_previousPos = { 400, 300 };
-	m_size = { 100, 100 };
+	m_imageSize = { 50, 50 };
 }
 
 void Enemy::Update(float _deltaTime)
@@ -18,11 +20,24 @@ void Enemy::Update(float _deltaTime)
 void Enemy::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
-	graphics.Draw(Graphics::Textures::enemy, m_position, { 1.0f, 1.0f });
+	graphics.Draw(Graphics::Textures::enemy, m_position, m_imageSize);
 }
 
 void Enemy::Shutdown(void)
 {
+
+}
+
+void Enemy::FollowPlayer(void)
+{
+	Grid& grid = Grid::GetInstance();
+	Player& player = Player::GetInstance();
+	PathingAlgorithm::Request request;
+
+	request.isNewRequest = true;
+	request.m_target = grid.WorldtoGrid(player.GetPosition());
+	request.m_start = grid.WorldtoGrid(m_position);
+
 
 }
 
@@ -54,27 +69,27 @@ void Enemy::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 	{
 		if (v.x > 0) // right
 		{
-			m_position.x += ((m_size.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
+			m_position.x += ((m_imageSize.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
 		}
 		else // left
 		{
-			m_position.x -= ((m_size.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
+			m_position.x -= ((m_imageSize.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
 		}
 	}
 	else
 	{
 		if (v.y > 0) // top
 		{
-			m_position.y += ((m_size.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
+			m_position.y += ((m_imageSize.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
 		}
 		else // bottom
 		{
-			m_position.y -= ((m_size.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
+			m_position.y -= ((m_imageSize.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
 		}
 	}
 }
 
 DirectX::SimpleMath::Vector2 Enemy::GetSize(void)
 {
-	return m_size;
+	return m_imageSize;
 }

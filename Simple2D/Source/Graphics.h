@@ -31,6 +31,8 @@ public:
 		enemy,
 		wall,
 		cheese,
+		win,
+		lose,
 		Count
 	};
 
@@ -38,7 +40,7 @@ public:
 
 	void StartDraw(void);
 	void Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, 
-		DirectX::SimpleMath::Vector2 _scale);
+		DirectX::SimpleMath::Vector2 _imageSize);
 	void EndDraw(void);
 
 	void Shutdown(void);
@@ -51,6 +53,8 @@ private:
 	GLFWwindow* m_window;
 	int m_width;
 	int m_height;
+
+	DirectX::SimpleMath::Vector2 m_scale;
 
 	//init stuff / draw stuff
 	ComPtr<IDXGIFactory3> m_factory;    //used to create objects
