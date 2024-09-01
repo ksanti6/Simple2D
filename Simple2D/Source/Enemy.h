@@ -23,14 +23,16 @@ public:
 	void ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 		DirectX::SimpleMath::Vector2 _BWidthHeight);
 
+	DirectX::SimpleMath::Vector2 GetSize(void);
 
 private:
 	float m_speed = 5.0f;
 	DirectX::SimpleMath::Vector2 m_position;
 	DirectX::SimpleMath::Vector2 m_scale;
 
-	int m_width = 100;
-	int m_height = 100;
+	DirectX::SimpleMath::Vector2 m_size;
+
+
 	DirectX::SimpleMath::Vector2 m_previousPos;
 	DirectX::SimpleMath::Vector2 m_direction;
 };

@@ -30,6 +30,7 @@ public:
 		player,
 		enemy,
 		wall,
+		cheese,
 		Count
 	};
 

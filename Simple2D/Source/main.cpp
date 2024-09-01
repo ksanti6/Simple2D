@@ -23,6 +23,10 @@ void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, 
 	if (_key == GLFW_KEY_R && _action == GLFW_PRESS)
 	{
 		//restart?
+		GameScene& game = GameScene::GetInstance();
+		game.Shutdown();
+		game.Init();
+		
 	}
 
 	Player& player = Player::GetInstance();
@@ -73,6 +77,7 @@ int main(void)
 		graphics.StartDraw();
 
 		game.Update(deltaTime);
+		game.Draw();
 
 		graphics.EndDraw();
 		endTime = glfwGetTime();

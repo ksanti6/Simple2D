@@ -27,6 +27,9 @@ const std::map<Graphics::Textures, std::wstring> textPaths =
 	},
 	{
 		Graphics::Textures::wall, L"./Asset/TestTile.png"
+	},
+	{
+		Graphics::Textures::cheese, L"./Asset/TestCheese.png"
 	}
 };
 

@@ -27,6 +27,10 @@ public:
 
 	void ResolveEnemyCollision(void);
 
+	void AdjustScore(int _value);
+
+	DirectX::SimpleMath::Vector2 GetSize(void);
+
 
 private:
 	int m_score = 0;
@@ -35,8 +39,7 @@ private:
 	DirectX::SimpleMath::Vector2 m_position;
 	DirectX::SimpleMath::Vector2 m_scale;
 
-	int m_width = 100;
-	int m_height = 100;
+	DirectX::SimpleMath::Vector2 m_size;
 	DirectX::SimpleMath::Vector2 m_previousPos;
 	DirectX::SimpleMath::Vector2 m_direction;
 };

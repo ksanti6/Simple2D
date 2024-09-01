@@ -13,8 +13,9 @@ public:
 
 	void Init(void);
 	void Update(float _deltaTime);
+	void Draw(void);
 	void Shutdown(void);
 
 private:
-	DirectX::SimpleMath::Vector2 m_tileSize;
+	
 };

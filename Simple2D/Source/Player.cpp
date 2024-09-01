@@ -11,6 +11,9 @@ void Player::Init(void)
 	m_scale = { 1, 1 };
 	m_speed = 200.0f;
 	m_previousPos = { 200, 300 };
+	m_size = { 100, 100 };
+
+	printf_s("Player Lives: %i\n", m_lives);
 }
 
 void Player::Update(float _deltaTime)
@@ -116,22 +119,22 @@ void Player::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 	{
 		if (v.x > 0) // right
 		{
-			m_position.x += ((m_width + _BWidthHeight.x) / 2.0f) - abs(v.x);
+			m_position.x += ((m_size.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
 		}
 		else // left
 		{
-			m_position.x -= ((m_width + _BWidthHeight.x) / 2.0f) - abs(v.x);
+			m_position.x -= ((m_size.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
 		}
 	}
 	else
 	{
 		if (v.y > 0) // top
 		{
-			m_position.y += ((m_height + _BWidthHeight.y) / 2.0f) - abs(v.y);
+			m_position.y += ((m_size.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
 		}
 		else // bottom
 		{
-			m_position.y -= ((m_height + _BWidthHeight.y) / 2.0f) - abs(v.y);
+			m_position.y -= ((m_size.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
 		}
 	}
 }
@@ -139,6 +142,7 @@ void Player::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 void Player::ResolveEnemyCollision(void)
 {
 	--m_lives;
+	printf_s("Player Lives: %i\n", m_lives);
 	
 	if (m_lives == 0)
 	{
@@ -152,3 +156,16 @@ void Player::ResolveEnemyCollision(void)
 	
 
 }
+
+void Player::AdjustScore(int _value)
+{
+	m_score += _value;
+	printf_s("Player Score: %i\n", m_score);
+}
+
+DirectX::SimpleMath::Vector2 Player::GetSize(void)
+{
+	return m_size;
+}
+
+
