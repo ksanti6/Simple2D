@@ -262,3 +262,13 @@ void LevelGeneration::ResetPlayerEnemyPositions(void)
 	player.SetPosition(m_startingPlayer);
 	enemy.SetPosition(m_startingEnemy);
 }
+
+/************************************************
+*
+* returns how many cheese are on the map
+*
+************************************************/
+int LevelGeneration::GetNumberofCheeseLeft(void)
+{
+	return m_cheese.size();
+}

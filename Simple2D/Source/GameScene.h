@@ -10,11 +10,7 @@
 class GameScene
 {
 private:
-	explicit GameScene()
-	{
-		m_timer = 0.0f;
-		m_waitTimer = 0;
-	}
+	explicit GameScene() { }
 	GameScene(const GameScene&) = delete;
 	void operator=(const GameScene&) = delete;
 
@@ -27,10 +23,4 @@ public:
 	void Shutdown(void);
 
 	void Reset(void);
-
-private:
-	
-	float m_timer;   //timer for win con
-	int m_waitTimer; //timer for printing out timer
-
 };

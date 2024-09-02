@@ -37,6 +37,8 @@ public:
 
 	void ResetPlayerEnemyPositions(void);
 
+	int GetNumberofCheeseLeft(void);
+
 private:
 
 	std::vector<std::string> m_filePath;                        //holds all the possible levels to spawn

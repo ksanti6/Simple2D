@@ -43,9 +43,6 @@ void GameScene::Init(void)
 
 	PathingAlgorithm& algorithm = PathingAlgorithm::GetInstance();
 	algorithm.Init();
-
-	m_timer = 50;
-	m_waitTimer = 0;
 }
 
 /************************************************
@@ -57,31 +54,22 @@ void GameScene::Init(void)
 void GameScene::Update(float _deltaTime)
 {
 	Player& player = Player::GetInstance();
+	Enemy& enemy = Enemy::GetInstance();
+	LevelGeneration& level = LevelGeneration::GetInstance();
 
 	//if the player has lost, dont update anymore
+	//lose condition == player loses all lives
 	if (player.GetLives() <= 0)
 	{
 		return;
 	}
 
-	//update timer
-	m_timer -= _deltaTime;
-	++m_waitTimer;
-
-	//for printing timer
-	if (m_waitTimer % 65 == 0)
-	{
-		printf_s("TIMER: %4.2f\n", m_timer);
-	}
-
 	//if the player has won, dont update anymore
-	if (m_timer < 0)
+	//win condition == no more cheese on map
+	if (level.GetNumberofCheeseLeft() == 0)
 	{
 		return;
 	}
-
-	Enemy& enemy = Enemy::GetInstance();
-	LevelGeneration& level = LevelGeneration::GetInstance();
 
 	//update the player and enemy, then check for collisions
 	player.Update(_deltaTime);
@@ -128,7 +116,7 @@ void GameScene::Draw(void)
 	}
 
 	//win condition - draw win screen
-	if (m_timer < 0)
+	if (level.GetNumberofCheeseLeft() == 0)
 	{
 		Graphics& graphics = Graphics::GetInstance();
 		graphics.Draw(Graphics::Textures::win, { 800, 450 }, { 500, 500 });
