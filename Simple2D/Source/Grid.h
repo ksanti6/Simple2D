@@ -55,6 +55,8 @@ public:
 
 	Node* GetNodeByPosition(DirectX::XMUINT2 _position);
 
+	DirectX::XMUINT2 GetNearbyNodeByPosition(DirectX::XMUINT2 _position);
+
 	void ClearNodes(void);
 
 	void OnGridFinish(void);

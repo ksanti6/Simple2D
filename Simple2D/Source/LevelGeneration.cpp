@@ -41,7 +41,7 @@ void LevelGeneration::ReadFromFile(void)
 	DirectX::SimpleMath::Vector2 currentPos = { m_imageSize.x / 2.0f, m_imageSize.y / 2.0f};
 	uint32_t currentWidth = 0;
 	uint32_t currentHeight = 0;
-	float baseSpeed = 100.0f;
+	float baseSpeed = 125.0f;
 	int speedVariant = 50;
 
 	Player& player = Player::GetInstance();

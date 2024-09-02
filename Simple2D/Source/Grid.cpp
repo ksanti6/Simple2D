@@ -7,6 +7,7 @@
 **********************************************************************************************************************/
 #include "Grid.h"
 #include "LevelGeneration.h"       //for size of objects from level generation
+#include <algorithm>               //for clamp
 
 /************************************************
 *
@@ -69,6 +70,47 @@ void Grid::SetWidthAndHeight(int _w, int _h)
 Grid::Node* Grid::GetNodeByPosition(DirectX::XMUINT2 _position)
 {
 	return &m_grid[_position.y * m_gridWidth + _position.x];
+}
+
+/************************************************
+*
+* returns a random position near the given 
+* position that is walkable (this is to give
+* the enemy a random target)
+*
+************************************************/
+DirectX::XMUINT2 Grid::GetNearbyNodeByPosition(DirectX::XMUINT2 _position)
+{
+	DirectX::XMUINT2 nearbyNode = { 0,0 };
+
+	int possibleX = _position.x, possibleY = _position.y;
+
+	int maxIndex = m_gridHeight * m_gridWidth;
+
+	while (true)
+	{
+		possibleX += -4 + (rand() % 8);
+		possibleY += -4 + (rand() % 8);
+
+		possibleX = std::clamp(possibleX, 0, m_gridWidth);
+		possibleY = std::clamp(possibleY, 0, m_gridHeight);
+
+		if ((possibleY * m_gridWidth + possibleX) >= maxIndex)
+		{
+			continue;
+		}
+
+		nearbyNode = {static_cast<uint32_t>(possibleX), static_cast<uint32_t>(possibleY)};
+
+		Node* possibleNode = GetNodeByPosition(nearbyNode);
+
+		if (possibleNode->m_NotWall)
+		{
+			break;
+		}
+	}
+
+	return nearbyNode;
 }
 
 /************************************************

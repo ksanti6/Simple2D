@@ -70,7 +70,7 @@ void Enemy::Update(float _deltaTime)
 	}
 
 	//have we gone a bit into the path? calculate new path since the player has probably moved by now
-	if (m_completedNodes > 3)
+	if (m_completedNodes > 5)
 	{
 		FollowPlayer();
 	}
@@ -135,8 +135,20 @@ void Enemy::FollowPlayer(void)
 	Player& player = Player::GetInstance();
 	PathingAlgorithm& algorithm = PathingAlgorithm::GetInstance();
 
+
+	//chance to go to random nearby node instead
+	int chance = rand() % 10;
+	if (chance > 7)
+	{
+		//printf_s("random!\n");
+		m_currentRequest.m_target = grid.GetNearbyNodeByPosition(grid.WorldtoGrid(m_position));
+	}
+	else
+	{
+		m_currentRequest.m_target = grid.WorldtoGrid(player.GetPosition());
+	}
+
 	m_currentRequest.isNewRequest = true;
-	m_currentRequest.m_target = grid.WorldtoGrid(player.GetPosition());
 	m_currentRequest.m_start = grid.WorldtoGrid(m_position);
 	m_currentRequest.m_finalPath.clear();
 	m_completedNodes = 0;
