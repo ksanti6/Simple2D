@@ -1,14 +1,24 @@
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Enemy.cpp
+* Purpose: the behaviors,etc of the enemy
+*
+**********************************************************************************************************************/
 #include "Enemy.h"
-#include "Graphics.h"
+#include "Graphics.h"   //for drawing
+#include "Player.h"    //for player position
+#include "Grid.h"      //for grid conversion functions
 
-#include "Player.h"
-#include "Grid.h"
-
+/************************************************
+*
+* initialize all the data for the enemy
+*
+************************************************/
 void Enemy::Init(void)
 {
 	m_position = { 400, 300 };
 	m_speed = 125.0f;
-	m_previousPos = { 400, 300 };
 	m_imageSize = { 50, 50 };
 	m_minDistance = 5.0f;
 	m_completedNodes = 0;
@@ -17,17 +27,20 @@ void Enemy::Init(void)
 	m_currentRequest.m_finalPath.clear();
 	m_currentRequest.m_start = { 0,0 };
 	m_currentRequest.m_target = { 0,0 };
-
 }
 
+/************************************************
+*
+* handles the movement for the enemy and getting
+* new paths for the enemy to traverse
+*
+************************************************/
 void Enemy::Update(float _deltaTime)
 {
-	//enemy pathing ai - astar?
 	Grid& grid = Grid::GetInstance();
 	Player& player = Player::GetInstance();
 
-	
-
+	//is the path empty? calculate new path
 	if (m_currentRequest.m_finalPath.size() == 0)
 	{
 		FollowPlayer();
@@ -35,6 +48,7 @@ void Enemy::Update(float _deltaTime)
 		return;
 	}
 
+	//have we gone a bit into the path? calculate new path since the player has probably moved by now
 	if (m_completedNodes > 3)
 	{
 		FollowPlayer();
@@ -42,43 +56,69 @@ void Enemy::Update(float _deltaTime)
 
 	DirectX::SimpleMath::Vector2 target = grid.GridtoWorld(m_currentRequest.m_finalPath.front());
 
+	//are we at the current target node?
 	if ((abs(m_position.x - target.x) <= m_minDistance) &&
 		(abs(m_position.y - target.y) <= m_minDistance))
 	{
+		//yes!
+		//take it off the path
 		m_currentRequest.m_finalPath.erase(m_currentRequest.m_finalPath.begin());
 		++m_completedNodes;
 
+		//get a new target
 		if (m_currentRequest.m_finalPath.size() != 0)
 		{
 			target = grid.GridtoWorld(m_currentRequest.m_finalPath.front());
 		}
 	}
 
+	//move towards the target
 	DirectX::SimpleMath::Vector2 direction = target - m_position;
 
 	direction.Normalize();
 	m_position += direction * 200.0f * _deltaTime;
 }
 
+/************************************************
+*
+* draw the enemy
+*
+************************************************/
 void Enemy::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
 	graphics.Draw(Graphics::Textures::enemy, m_position, m_imageSize);
-
-
-	//Grid& grid = Grid::GetInstance();
-	//for (int k = 0; k < m_currentRequest.m_finalPath.size(); ++k)
-	//{
-	//	graphics.Draw(Graphics::Textures::cheese, 
-	//		grid.GridtoWorld(m_currentRequest.m_finalPath[k]), m_imageSize);
-	//}
 }
 
+/************************************************
+*
+* shutdown - surprisingly empty but here if needed
+*
+************************************************/
 void Enemy::Shutdown(void)
 {
-	
 }
 
+/************************************************
+*
+* if we need to reset the pathing, clear out the 
+* request
+*
+************************************************/
+void Enemy::ResetPathing(void)
+{
+	m_currentRequest.isNewRequest = true;
+	m_currentRequest.m_finalPath.clear();
+	m_currentRequest.m_start = { 0,0 };
+	m_currentRequest.m_target = { 0,0 };
+}
+
+/************************************************
+*
+* create a new request and call the A Star 
+* algorithm to determine the path
+*
+************************************************/
 void Enemy::FollowPlayer(void)
 {
 	Grid& grid = Grid::GetInstance();
@@ -94,26 +134,43 @@ void Enemy::FollowPlayer(void)
 	algorithm.TheAlgorithm(m_currentRequest);
 }
 
-
+/************************************************
+*
+* get an instance of the enemy
+*
+************************************************/
 Enemy& Enemy::GetInstance()
 {
 	static Enemy enemy;
 	return enemy;
 }
 
+/************************************************
+*
+* get the enemies current positions
+*
+************************************************/
 DirectX::SimpleMath::Vector2 Enemy::GetPosition(void)
 {
 	return m_position;
 }
 
+/************************************************
+*
+* set the enemies position
+*
+************************************************/
 void Enemy::SetPosition(DirectX::SimpleMath::Vector2 _position)
 {
 	m_position = _position;
-	m_previousPos = _position;
 }
 
 
-//tbd
+/************************************************
+*
+* collision resolution for wall collisions
+*
+************************************************/
 void Enemy::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 	DirectX::SimpleMath::Vector2 _BWidthHeight)
 {
@@ -142,6 +199,11 @@ void Enemy::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 	}
 }
 
+/************************************************
+*
+* get w x h of the enemy
+*
+************************************************/
 DirectX::SimpleMath::Vector2 Enemy::GetSize(void)
 {
 	return m_imageSize;

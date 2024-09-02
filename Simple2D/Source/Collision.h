@@ -1,5 +1,12 @@
 #pragma once
-#include <directxtk12/SimpleMath.h>
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Collision.h
+* Purpose: do box to box collision check, is a namespace so it is gatekept a little bit (a class seemed overkill)
+*
+**********************************************************************************************************************/
+#include <directxtk12/SimpleMath.h>  //for vector2
 
 namespace Collision
 {

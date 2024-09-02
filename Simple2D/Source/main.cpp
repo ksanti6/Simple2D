@@ -1,27 +1,42 @@
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include "Graphics.h"
-#include "Player.h"
-#include "GameScene.h"
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : main.cpp
+* Purpose: the main entry point for the game
+*
+**********************************************************************************************************************/
+#include <GLFW/glfw3.h>     //window and input
+#include "Graphics.h"       //drawing with dx12
+#include "Player.h"         //player input
+#include "GameScene.h"      //games code
 
-#include "Grid.h"
-#include"Enemy.h"
-
-
+/************************************************
+*
+* callback for errors with glfw
+*
+************************************************/
 void GlfwErrorCallback(int _errorCode, const char* _description)
 {
 	printf(_description);
 }
 
+/************************************************
+*
+* callback for interpretting input with glfw
+*
+************************************************/
 void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, int _mods)
 {
+	//we dont need these
 	(void)_scancode; (void)_mods;
 
+	//close the window
 	if (_key == GLFW_KEY_ESCAPE && _action == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(_window, GLFW_TRUE);
 	}
 
+	//reset the game
 	if (_key == GLFW_KEY_R && _action == GLFW_PRESS)
 	{
 		//restart?
@@ -30,33 +45,20 @@ void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, 
 		
 	}
 
+	//player movement
 	Player& player = Player::GetInstance();
-	if (_key == GLFW_KEY_T && _action == GLFW_PRESS)
-	{
-		printf_s("requesting new enemy path\n");
-		Enemy& enemy = Enemy::GetInstance();
-		enemy.FollowPlayer();
-		
-		//Grid& grid = Grid::GetInstance();
-		//
-		//printf_s("Player Position is: %f %f \n", player.GetPosition().x, player.GetPosition().y);
-		//
-		//DirectX::XMUINT2 g = grid.WorldtoGrid(player.GetPosition());
-		//
-		//printf_s("World to Grid: %i %i \n", g.x, g.y);
-		//DirectX::SimpleMath::Vector2 b = grid.GridtoWorld(g);
-		//
-		//printf_s("Grid to World: %f %f\n", b.x, b.y);
-
-	}
-
-	
 	player.Move(_key, _action);
 
 }
 
+/************************************************
+*
+* main! where all the fun happens
+*
+************************************************/
 int main(void)
 {
+	//set up the window
 	if (!glfwInit())
 	{
 		printf("ERROR: glfw init did not work.\n");
@@ -75,23 +77,25 @@ int main(void)
 		return -1;
 	}
 
+	//set up input
 	glfwSetKeyCallback(p_window, GlfwKeyCallback);
 
-
+	//initialize dx12 and game
 	Graphics& graphics = Graphics::GetInstance();
 	graphics.Init(p_window);
 
 	GameScene& game = GameScene::GetInstance();
 	game.Init();
 
-
+	//for calculating delta time between frames
 	float startTime = static_cast<float>(glfwGetTime());
 	float endTime = static_cast<float>(glfwGetTime());
 	float deltaTime = 0.0f;
 
+	//our main update loop
+	//update objects, draw them, etc
 	while (!glfwWindowShouldClose(p_window))
 	{
-		//do stuff
 		glfwPollEvents();
 
 		startTime = static_cast<float>(glfwGetTime());
@@ -103,11 +107,9 @@ int main(void)
 		graphics.EndDraw();
 		endTime = static_cast<float>(glfwGetTime());
 		deltaTime = endTime - startTime;
-		
 	}
-
+	//time to shutdown everything, in reverse order of initialization
 	game.Shutdown();
-
 	graphics.Shutdown();
 	glfwDestroyWindow(p_window);
 	glfwTerminate();

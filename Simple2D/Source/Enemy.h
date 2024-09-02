@@ -1,6 +1,13 @@
 #pragma once
-#include<directxtk12/SimpleMath.h>
-#include "PathingAlgorithm.h"
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Enemy.h
+* Purpose: all things the enemy -> behaviors, etc. (a singleton)
+*
+**********************************************************************************************************************/
+#include<directxtk12/SimpleMath.h>  //for vector2
+#include "PathingAlgorithm.h"       //for request
 
 class Enemy
 {
@@ -20,9 +27,8 @@ public:
 	void Draw(void);
 	void Shutdown(void);
 
-
+	void ResetPathing(void);
 	void FollowPlayer(void);
-
 
 	static Enemy& GetInstance();
 
@@ -35,17 +41,13 @@ public:
 	DirectX::SimpleMath::Vector2 GetSize(void);
 
 private:
-	float m_speed;
-	float m_minDistance;
-	int m_completedNodes;
-	PathingAlgorithm::Request m_currentRequest;
+	float m_speed;                               //speed the enemy moves at
+	float m_minDistance;                         //how close the enemy needs to be the path node for it to be considered reached
+	int m_completedNodes;                        //the number of nodes completed in the path
+	PathingAlgorithm::Request m_currentRequest;  //the current requesting path for the enemy
 
-	DirectX::SimpleMath::Vector2 m_position;
+	DirectX::SimpleMath::Vector2 m_position;     //current position of the enemy
 	
-
-	DirectX::SimpleMath::Vector2 m_imageSize;
-
-
-	DirectX::SimpleMath::Vector2 m_previousPos;
-	DirectX::SimpleMath::Vector2 m_direction;
+	DirectX::SimpleMath::Vector2 m_imageSize;    //w x h of the enemy
+	DirectX::SimpleMath::Vector2 m_direction;    //the direction the enemy moves, based on the path
 };

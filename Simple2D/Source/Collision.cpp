@@ -1,10 +1,22 @@
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Collision.cpp
+* Purpose: do box to box collision check, is a namespace so it is gatekept a little bit (a class seemed overkill)
+*
+**********************************************************************************************************************/
 #include "Collision.h"
-#include <iostream>
-#include <math.h>
 
 
 namespace Collision
 {
+	/************************************************
+    *
+    * box to box collision check between box A and
+	* box B
+	* return true if collision, false otherwise
+    *
+    ************************************************/
 	bool CheckCollision(DirectX::SimpleMath::Vector2 _APosition, 
 		DirectX::SimpleMath::Vector2 _AWidthHeight, 
 		DirectX::SimpleMath::Vector2 _BPosition, 
@@ -19,7 +31,6 @@ namespace Collision
 			return false;
 		}
 
-		//printf_s("collision\n");
 		return true;
 	}
 }

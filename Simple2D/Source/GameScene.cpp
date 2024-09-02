@@ -1,17 +1,35 @@
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : GameScene.cpp
+* Purpose: where all the game code lives! so it doesnt clog up main
+*
+**********************************************************************************************************************/
 #include "GameScene.h"
-#include "Player.h"
-#include "LevelGeneration.h"
-#include "Collision.h"
-#include "Enemy.h"
-#include "PathingAlgorithm.h"
-#include "Graphics.h"
+#include "Player.h"               //for all things player
+#include "LevelGeneration.h"      //for generating the level
+#include "Collision.h"            //for checking collision bt player and enemy
+#include "Enemy.h"                //for all things enemy
+#include "PathingAlgorithm.h"     //for initializing the A Star algorithm
+#include "Graphics.h"             //for drawing win and lose
 
+/************************************************
+*
+* for getting an instance of the gamescene
+*
+************************************************/
 GameScene& GameScene::GetInstance(void)
 {
 	static GameScene game;
 	return game;
 }
 
+/************************************************
+*
+* the init of all inits, initializing all things
+* for the game to work
+*
+************************************************/
 void GameScene::Init(void)
 {
 	Player& player = Player::GetInstance();
@@ -30,41 +48,42 @@ void GameScene::Init(void)
 	m_waitTimer = 0;
 }
 
+/************************************************
+*
+* updates all the objects in game and checks for
+* collisions, and for win/lose conditions
+*
+************************************************/
 void GameScene::Update(float _deltaTime)
 {
 	Player& player = Player::GetInstance();
 
+	//if the player has lost, dont update anymore
 	if (player.GetLives() <= 0)
 	{
 		return;
 	}
 
+	//update timer
 	m_timer -= _deltaTime;
 	++m_waitTimer;
 
+	//for printing timer
 	if (m_waitTimer % 65 == 0)
 	{
 		printf_s("TIMER: %4.2f\n", m_timer);
 	}
 
+	//if the player has won, dont update anymore
 	if (m_timer < 0)
 	{
-		//win
-		//printf_s("YOU WIN\n");
-		//player.AdjustScore(0);
-
 		return;
-
 	}
 
-
-
-
-	
 	Enemy& enemy = Enemy::GetInstance();
 	LevelGeneration& level = LevelGeneration::GetInstance();
 
-	
+	//update the player and enemy, then check for collisions
 	player.Update(_deltaTime);
 	enemy.Update(_deltaTime);
 
@@ -79,28 +98,28 @@ void GameScene::Update(float _deltaTime)
 	{
 		player.AdjustLives(1);
 
-		if (player.GetLives() <= 0)
-		{
-			//game over
-		}
-		else
+		//not dead yet
+		if (player.GetLives() > 0)
 		{
 			//reset positions
 			level.ResetPlayerEnemyPositions();
-
+			enemy.ResetPathing();
 		}
 	}
-
-	
-
 }
 
+/************************************************
+*
+* draws all the objects in the game
+*
+************************************************/
 void GameScene::Draw(void)
 {
 	Player& player = Player::GetInstance();
 	Enemy& enemy = Enemy::GetInstance();
 	LevelGeneration& level = LevelGeneration::GetInstance();
 
+	//lose condition - draw lost screen
 	if (player.GetLives() <= 0)
 	{
 		Graphics& graphics = Graphics::GetInstance();
@@ -108,6 +127,7 @@ void GameScene::Draw(void)
 		return;
 	}
 
+	//win condition - draw win screen
 	if (m_timer < 0)
 	{
 		Graphics& graphics = Graphics::GetInstance();
@@ -120,6 +140,12 @@ void GameScene::Draw(void)
 	enemy.Draw();
 }
 
+/************************************************
+*
+* shutdown of all the shutdowns!
+* make sure everything gets cleaned up
+*
+************************************************/
 void GameScene::Shutdown(void)
 {
 	Player& player = Player::GetInstance();
@@ -135,9 +161,13 @@ void GameScene::Shutdown(void)
 	grid.Shutdown();
 }
 
+/************************************************
+*
+* for hitting R reset
+*
+************************************************/
 void GameScene::Reset(void)
 {
-
 	Shutdown();
 	Init();
 }

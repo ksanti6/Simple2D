@@ -3,7 +3,7 @@
 * 
 * Author : Kiara Santiago
 * File   : Player.h
-* Purpose: Holds the singleton Player
+* Purpose: Holds the singleton Player -> behaviors, etc of the playable character
 * 
 **********************************************************************************************************************/
 #include<directxtk12/SimpleMath.h>  //for Vector2
@@ -38,11 +38,9 @@ public:
 		DirectX::SimpleMath::Vector2 _BWidthHeight);
 
 	void AdjustScore(int _value);
-
 	void AdjustLives(int _value);
 
 	int GetLives(void);
-
 	DirectX::SimpleMath::Vector2 GetSize(void);
 
 
@@ -53,6 +51,5 @@ private:
 	DirectX::SimpleMath::Vector2 m_position;         //current position of the player
 
 	DirectX::SimpleMath::Vector2 m_imageSize;        //width and height of the player image
-	DirectX::SimpleMath::Vector2 m_previousPos;      //position of player in the last frame
 	DirectX::SimpleMath::Vector2 m_direction;        //direction data from input
 };

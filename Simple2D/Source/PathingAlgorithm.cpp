@@ -1,5 +1,13 @@
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : PathingAlgorithm.cpp
+* Purpose: the implementation of the A Star algorithm
+*
+**********************************************************************************************************************/
 #include "PathingAlgorithm.h"
 
+//undefining the min and max macros so i can use std:: min and max 
 #ifdef min
 #undef min
 #endif // min
@@ -9,18 +17,33 @@
 #endif // max
 
 
-
+/************************************************
+*
+* getting an instance of the algorithm
+*
+************************************************/
 PathingAlgorithm& PathingAlgorithm::GetInstance(void)
 {
 	static PathingAlgorithm path;
 	return path;
 }
 
+/************************************************
+*
+* init - ensuring we have a fresh priority queue
+*
+************************************************/
 void PathingAlgorithm::Init(void)
 {
 	m_sortedOpenList = std::priority_queue<Grid::Node*, std::vector<Grid::Node*>, Compare>(Compare(), m_openList);
 }
 
+/************************************************
+*
+* A Star Algorithm, returns true if the algorithm
+* is complete
+*
+************************************************/
 bool PathingAlgorithm::TheAlgorithm(Request& _request)
 {
 	Grid& grid = Grid::GetInstance();
@@ -29,16 +52,15 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 
 	if (_request.isNewRequest)
 	{
+		//for the new request make sure to clear all data of last request
+		//and get ready for new request
 		_request.isNewRequest = false;
-		//initialie everything and clear open lists
-
 		m_target = _request.m_target;
 		grid.ClearNodes();
 		m_openList.clear();
 		m_sortedOpenList = std::priority_queue<Grid::Node*, std::vector<Grid::Node*>, Compare>(Compare(), m_openList);
-		//clear priority queue?
-	    //push starting node to the open list with cost of ?????
 
+	    //get the starting node for new request and add it to open list
 		Grid::Node* startingNode = grid.GetNodeByPosition(_request.m_start);
 		startingNode->m_parent = nullptr;
 
@@ -46,14 +68,19 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 
 	}
 	
+	//while there are still nodes to process on open list
 	while (!m_sortedOpenList.empty())
 	{
 		Grid::Node* parent = GetNextNode();
 
+		//is this node the target / end goal?
 		if ((parent->m_position.x == m_target.x) && (parent->m_position.y == m_target.y))
 		{
+			//yes
+			//make the completed path and stop the algorithm
+
 			Grid::Node* n = parent;
-			//_request.m_finalPath.clear();
+			
 			while (true)
 			{
 				_request.m_finalPath.push_back(n->m_position);
@@ -70,8 +97,12 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 			return true;
 		}
 
+		//no
+		//find the children of current node and add them to the open list
+
 		uint8_t pDir = parent->m_directions;
 
+		//check in all 8 directions of node for children
 		for (uint16_t dir = 1; dir <= Grid::NodeDirections::DownLeft; dir <<= 1)
 		{
 			if (pDir & dir)
@@ -80,10 +111,16 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 			}
 		}
 	}
-
+	//no more nodes to process and algorithm did not finish
 	return false;
 }
 
+/************************************************
+*
+* get the next node from the open list to 
+* process
+*
+************************************************/
 Grid::Node* PathingAlgorithm::GetNextNode(void)
 {
 	Grid::Node* node = m_sortedOpenList.top();
@@ -95,15 +132,24 @@ Grid::Node* PathingAlgorithm::GetNextNode(void)
 	return node;
 }
 
+/************************************************
+*
+* find the child in the specific direction of the
+* node and see if we can add it to the open list
+*
+************************************************/
 void PathingAlgorithm::AddChild(Grid::Node* _node, uint8_t _direction)
 {
 	Grid& grid = Grid::GetInstance();
 
+	//position of the node we want to find children for
 	DirectX::XMUINT2 position = _node->m_position;
 
 	DirectX::XMUINT2 childPosition = position;
 	float givenCost = 1;
 
+	//adjust childs position based on direction
+	//diagonal child get higher cost
 	switch (_direction)
 	{
 	case Grid::NodeDirections::Up:
@@ -156,11 +202,13 @@ void PathingAlgorithm::AddChild(Grid::Node* _node, uint8_t _direction)
 	}
 	}
 
+	//get the child node and calculate its cost
 	givenCost += _node->m_givenCost;
 	Grid::Node* child = grid.GetNodeByPosition(childPosition);
 
 	if (child == _node->m_parent)
 	{
+		//the nodes parent cannot be a child 
 		return;
 	}
 
@@ -168,6 +216,8 @@ void PathingAlgorithm::AddChild(Grid::Node* _node, uint8_t _direction)
 
 	cost += givenCost;
 
+	//we want the child if its not on the list OR
+	//if its cost is cheaper than its other self on the list
 	if (!child->m_onList || cost < child->m_finalCost)
 	{
 		child->m_givenCost = givenCost;
@@ -176,31 +226,44 @@ void PathingAlgorithm::AddChild(Grid::Node* _node, uint8_t _direction)
 
 		InsertNode(child);
 	}
-
 }
 
+/************************************************
+*
+* we calculate the cost of the node based on the
+* octile heuristic
+*
+************************************************/
 float PathingAlgorithm::CalculateCost(Grid::Node* _node)
 {
-	//use octile huerstric
-
+	//this uses the diagonal distance
 	int xDiff = abs(static_cast<int>(m_target.x) - static_cast<int>(_node->m_position.x));
 	int yDiff = abs(static_cast<int>(m_target.y) - static_cast<int>(_node->m_position.y));
 
 	int min = std::min(xDiff, yDiff);
 	int max = std::max(xDiff, yDiff);
 
-
-
-
+	//1.41421356f is the magic number of the day!
+	//its the sqrt of 2
 	return min * 1.41421356f + max - min;
 }
 
+/************************************************
+*
+* add the given node to the open list
+*
+************************************************/
 void PathingAlgorithm::InsertNode(Grid::Node* _node)
 {
 	_node->m_onList = true;
 	m_sortedOpenList.push(_node);
 }
 
+/************************************************
+*
+* shutdown - clear all the lists
+*
+************************************************/
 void PathingAlgorithm::Shutdown(void)
 {
 	m_openList.clear();
@@ -209,10 +272,12 @@ void PathingAlgorithm::Shutdown(void)
 
 }
 
-
-
-
-
+/************************************************
+*
+* custom compare function for priority queue
+* compares the nodes final costs
+*
+************************************************/
 bool PathingAlgorithm::Compare::operator()(const Grid::Node* _nodeA, const Grid::Node* _nodeB) const
 {
 	return (_nodeA->m_finalCost > _nodeB->m_finalCost);

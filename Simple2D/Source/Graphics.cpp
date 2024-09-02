@@ -1,15 +1,24 @@
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Graphics.cpp
+* Purpose: implementation of Dx12 graphics code, allows for very basic drawing of textures
+*
+**********************************************************************************************************************/
 #include "Graphics.h"
-#include <iostream>
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-#include <d3dx12.h>
-#include <directxtk12/ResourceUploadBatch.h>
-#include <directxtk12/WICTextureLoader.h>
-#include <directxtk12/DirectXHelpers.h>
-#include <map>
+#include <GLFW/glfw3native.h>                    //window stuff
+#include <d3dx12.h>                              //meat of dx12 stuff
+#include <directxtk12/ResourceUploadBatch.h>     //for uploading textures
+#include <directxtk12/WICTextureLoader.h>        //for loading textures
+#include <directxtk12/DirectXHelpers.h>          //helpers
+#include <map>                                   //for pairing texture enum to path
 
-
-//error checking macro
+/************************************************
+*
+* error checking macro
+*
+************************************************/
 #define RETURN_IF_FAILED(_func) \
 if(FAILED(hr = _func)) { \
  printf_s("ERROR: DX12: %d in %s calling %s.\n", __LINE__, __FUNCTION__, #_func);\
@@ -17,6 +26,11 @@ if(FAILED(hr = _func)) { \
 return hr; \
 }
 
+/************************************************
+*
+* texture enum and file path pairings
+*
+************************************************/
 const std::map<Graphics::Textures, std::wstring> textPaths =
 {
 	{
@@ -39,9 +53,14 @@ const std::map<Graphics::Textures, std::wstring> textPaths =
 	}
 };
 
-
-
-
+/************************************************
+*
+* filling in descriptors and creating the swap
+* chain, also creating the viewports for the
+* buffers
+* returns either all good or error value
+*
+************************************************/
 HRESULT Graphics::CreateSwapChain(void)
 {
 	HRESULT hr = S_OK;
@@ -99,21 +118,25 @@ HRESULT Graphics::CreateSwapChain(void)
 			nullptr, m_rtvHeap->GetCpuHandle(k));
 	}
 
-
 	return hr;
 }
 
 
-//we want to load a texture, do the thing
+/************************************************
+*
+* load in all the textures
+*
+************************************************/
 void Graphics::LoadTexture()
 {
 	m_dsvHeap = std::make_unique<DirectX::DescriptorHeap>(m_device.Get(), Textures::Count);
 
+	//start upload sequence
 	DirectX::ResourceUploadBatch uploadBatch {m_device.Get()};
-
 	uploadBatch.Begin();
 
-	//describing our render target real quick
+	//describing our render target real quick -- putting this here since it needs to be done
+	//with the upload batch
 	DirectX::RenderTargetState targetState =
 	{
 		DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -121,9 +144,7 @@ void Graphics::LoadTexture()
 	};
 
 	DirectX::SpriteBatchPipelineStateDescription batchDesc{ targetState };
-
 	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_device.Get(), uploadBatch, batchDesc);
-
 
 	//load the texture
 	for (auto& k : textPaths)
@@ -134,16 +155,19 @@ void Graphics::LoadTexture()
 			k.first));
 	}
 
-	
-
+	//wait for all the textures to upload and end upload sequence
 	std::future<void> resourcesFinished = uploadBatch.End(m_comQ.Get());
 	resourcesFinished.wait();
 
-
 	//bc of comptrs we do not need to explicitly unload this
-
 }
 
+/************************************************
+*
+* initializing all the stuff for dx12
+* returns either all good or error value
+*
+************************************************/
 HRESULT Graphics::Init(GLFWwindow* _window)
 {
 	m_scale = { 1,1 };
@@ -167,7 +191,6 @@ HRESULT Graphics::Init(GLFWwindow* _window)
 	HRESULT hr = S_OK;
 
 	//create our factory
-
 	RETURN_IF_FAILED(CreateDXGIFactory(IID_PPV_ARGS(&m_factory)));
 
 	//get first adapter
@@ -178,7 +201,6 @@ HRESULT Graphics::Init(GLFWwindow* _window)
 	RETURN_IF_FAILED(adapter->QueryInterface(IID_PPV_ARGS(&m_adapter)));
 
 	///create the device
-
 	RETURN_IF_FAILED(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_12_0,
 		IID_PPV_ARGS(&m_device)));
 
@@ -194,6 +216,7 @@ HRESULT Graphics::Init(GLFWwindow* _window)
 	//create swap chain
 	RETURN_IF_FAILED(CreateSwapChain());
 
+	//for each buffer
 	for (int k = 0; k < m_frameCount; ++k)
 	{
 	   //create command allocator and command lists
@@ -225,22 +248,20 @@ HRESULT Graphics::Init(GLFWwindow* _window)
 
 	m_memory = std::make_unique<DirectX::GraphicsMemory>(m_device.Get());
 
-
-
 	//load the textures we will use
 	LoadTexture();
-
-	
 
 	return hr;
 }
 
+/************************************************
+*
+* gets ready for the drawing, clearing anything
+* that is needed, start recording, etc
+*
+************************************************/
 void Graphics::StartDraw(void)
 {
-	//get ready to draw 
-	//ready the command list for recording
-	//clear the screen, etc
-	
 	//clearing current variables associates with current buffer/frame
 
 	ComPtr<ID3D12Fence>& fence = m_fence[m_currentFrame];
@@ -297,19 +318,24 @@ void Graphics::StartDraw(void)
 
 	command->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 
-
 	ID3D12DescriptorHeap* heaps[] = { m_dsvHeap->Heap() };
 
 	command->SetDescriptorHeaps(1, heaps);
+
+	//start record
 	m_spriteBatch->Begin(command.Get());
-
-
 
 	//we are ready to draw now
 }
 
 
-//scale is (1,1) thats normal size
+/************************************************
+*
+* the draw function! used by everything/anything
+* outside of graphics to draw one of the textures
+* loaded in a simple/easy way
+*
+************************************************/
 void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, DirectX::SimpleMath::Vector2 _imageSize)
 {
 	DirectX::XMUINT2 imageSize = { static_cast<uint32_t>(_imageSize.x), static_cast<uint32_t>(_imageSize.y)};
@@ -319,8 +345,15 @@ void Graphics::Draw(Textures _texture, DirectX::SimpleMath::Vector2 _pos, Direct
 		nullptr, DirectX::Colors::White, 0.0f, origin, m_scale);
 }
 
+/************************************************
+*
+* stop drawing! stop recording and send all the 
+* drawing data up to the screen
+*
+************************************************/
 void Graphics::EndDraw(void)
 {
+	//stop record
 	m_spriteBatch->End();
 
 	ComPtr<ID3D12GraphicsCommandList>& command = m_comList[m_currentFrame];
@@ -333,6 +366,8 @@ void Graphics::EndDraw(void)
 	command->ResourceBarrier(1, &barrier);
 
 	command->Close();
+
+	//send out the draw commands
 
 	ID3D12CommandList* lists[] = { command.Get() };
 
@@ -348,11 +383,17 @@ void Graphics::EndDraw(void)
 	++m_SCFenceValue;
 	m_comQ->Signal(m_SCFence.Get(), m_SCFenceValue);
 
+	//switch buffer for next frame
 	++m_currentFrame;
-
 	m_currentFrame %= m_frameCount;
 }
 
+/************************************************
+*
+* shutdown! really just have to make sure the
+* fences are done, comptrs takes care of the rest
+*
+************************************************/
 void Graphics::Shutdown(void)
 {
 	//check if swap chain is idle
@@ -377,6 +418,11 @@ void Graphics::Shutdown(void)
 	}
 }
 
+/************************************************
+*
+* get an instance of the graphics 
+*
+************************************************/
 Graphics& Graphics::GetInstance()
 {
 	static Graphics graphics;

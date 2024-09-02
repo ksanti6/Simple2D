@@ -1,5 +1,11 @@
 #pragma once
-#include <directxtk12/SimpleMath.h>
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : GameScene.h
+* Purpose: where all the game code lives! a singleton
+*
+**********************************************************************************************************************/
 
 class GameScene
 {
@@ -24,7 +30,7 @@ public:
 
 private:
 	
-	float m_timer;
-	int m_waitTimer;
+	float m_timer;   //timer for win con
+	int m_waitTimer; //timer for printing out timer
 
 };

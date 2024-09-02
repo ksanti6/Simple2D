@@ -1,6 +1,13 @@
 #pragma once
-#include <vector>
-#include <directxtk12/SimpleMath.h>
+/**********************************************************************************************************************
+*
+* Author : Kiara Santiago
+* File   : Grid.h
+* Purpose: holds the sington grid -> this is data for A Star Algorithm
+*
+**********************************************************************************************************************/
+#include <vector>                    //std vector
+#include <directxtk12/SimpleMath.h>  //vector2, xmuint2
 
 class Grid
 {
@@ -13,17 +20,19 @@ private:
 	Grid(const Grid&) = delete;
 	void operator=(const Grid&) = delete;
 public:
+	//node data, for A Star Algorithm
 	struct Node
 	{
-		Node* m_parent;
-		DirectX::XMUINT2 m_position;
-		float m_finalCost;
-		float m_givenCost;
-		bool m_NotWall;
-		uint8_t m_directions;
-		bool m_onList;
+		Node* m_parent;              //parent to this node
+		DirectX::XMUINT2 m_position; //position in BLOCKS for this node
+		float m_finalCost;           //final cost of this node
+		float m_givenCost;           //given cost of this node
+		bool m_NotWall;              //true = not a wall, false = is a wall
+		uint8_t m_directions;        //directions that are walkable from this node
+		bool m_onList;               //is this current on the open list?
 	};
 
+	//the 8 directions
 	enum NodeDirections : uint8_t
 	{
 		Up = 1,
@@ -56,8 +65,8 @@ public:
 	void Shutdown(void);
 
 private:
-	int m_gridWidth;
-	int m_gridHeight;
+	int m_gridWidth;           //width in BLOCKS of the grid
+	int m_gridHeight;          //height in BLOCKS of the grid
 
-	std::vector<Node> m_grid;
+	std::vector<Node> m_grid;  //all the blocks on the grid
 };
