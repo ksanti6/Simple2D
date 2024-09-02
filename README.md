@@ -4,7 +4,7 @@
 [2. Controls](#controls)  
 [3. Goal](#goal)  
 [4. Results](#results)   
-[5. Where to Play](#where-to-play)
+[5. Where to Play](#where-to-play)  
 [6. Pictures](#pictures)
 
 ## Info
