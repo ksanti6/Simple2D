@@ -36,13 +36,34 @@ void GlfwKeyCallback(GLFWwindow* _window, int _key, int _scancode, int _action, 
 		glfwSetWindowShouldClose(_window, GLFW_TRUE);
 	}
 
+	GameScene& game = GameScene::GetInstance();
 	//reset the game
 	if (_key == GLFW_KEY_R && _action == GLFW_PRESS)
 	{
 		//restart?
-		GameScene& game = GameScene::GetInstance();
-		game.Reset();
-		
+		game.Reset(0);
+	}
+
+	//play a specific level
+	//level 1
+	if (_key == GLFW_KEY_1 && _action == GLFW_PRESS)
+	{
+		game.Reset(1);
+	}
+	//level 2
+	if (_key == GLFW_KEY_2 && _action == GLFW_PRESS)
+	{
+		game.Reset(2);
+	}
+	//level 3
+	if (_key == GLFW_KEY_3 && _action == GLFW_PRESS)
+	{
+		game.Reset(3);
+	}
+	//level 4
+	if (_key == GLFW_KEY_4 && _action == GLFW_PRESS)
+	{
+		game.Reset(4);
 	}
 
 	//player movement
@@ -85,7 +106,7 @@ int main(void)
 	graphics.Init(p_window);
 
 	GameScene& game = GameScene::GetInstance();
-	game.Init();
+	game.Init(0);
 
 	//for calculating delta time between frames
 	float startTime = static_cast<float>(glfwGetTime());

@@ -41,7 +41,7 @@ void LevelGeneration::ReadFromFile(void)
 	DirectX::SimpleMath::Vector2 currentPos = { m_imageSize.x / 2.0f, m_imageSize.y / 2.0f};
 	uint32_t currentWidth = 0;
 	uint32_t currentHeight = 0;
-	float baseSpeed = 75.0f;
+	float baseSpeed = 100.0f;
 	int speedVariant = 50;
 
 	Player& player = Player::GetInstance();
@@ -127,9 +127,10 @@ LevelGeneration& LevelGeneration::GetInstance(void)
 /************************************************
 *
 * initialize the level generation data
+* takes a level so we know what level to spawn
 *
 ************************************************/
-void LevelGeneration::Init(void)
+void LevelGeneration::Init(int _level)
 {
 	//seed for random so its actually random
 	srand(time(0));
@@ -141,7 +142,14 @@ void LevelGeneration::Init(void)
 	m_filePath.push_back("./Asset/Level_D.txt");
 
 	//choose file to load and load it
-	m_currentLevel = rand() % m_filePath.size();
+	if (_level == 0)
+	{
+		m_currentLevel = rand() % m_filePath.size();
+	}
+	else
+	{
+		m_currentLevel = _level - 1;
+	}
 	
 	m_imageSize = { 50, 50 };
 

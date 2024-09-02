@@ -26,15 +26,16 @@ GameScene& GameScene::GetInstance(void)
 *
 * the init of all inits, initializing all things
 * for the game to work
+* takes a level so we know what level to spawn
 *
 ************************************************/
-void GameScene::Init(void)
+void GameScene::Init(int _level)
 {
 	Player& player = Player::GetInstance();
 	player.Init();
 
 	LevelGeneration& level = LevelGeneration::GetInstance();
-	level.Init();
+	level.Init(_level);
 
 	PathingAlgorithm& algorithm = PathingAlgorithm::GetInstance();
 	algorithm.Init();
@@ -125,8 +126,8 @@ void GameScene::Shutdown(void)
 * for hitting R reset
 *
 ************************************************/
-void GameScene::Reset(void)
+void GameScene::Reset(int _level)
 {
 	Shutdown();
-	Init();
+	Init(_level);
 }

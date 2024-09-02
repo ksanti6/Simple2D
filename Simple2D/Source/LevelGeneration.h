@@ -29,7 +29,7 @@ public:
 
 	static LevelGeneration& GetInstance(void);
 
-	void Init(void);
+	void Init(int _level);
 	void Update(float _deltaTime);
 	void Draw(void);
 	void Shutdown(void);

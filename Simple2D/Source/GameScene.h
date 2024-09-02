@@ -17,10 +17,10 @@ private:
 public:
 	static GameScene& GetInstance(void);
 
-	void Init(void);
+	void Init(int _level);
 	void Update(float _deltaTime);
 	void Draw(void);
 	void Shutdown(void);
 
-	void Reset(void);
+	void Reset(int _level);
 };
