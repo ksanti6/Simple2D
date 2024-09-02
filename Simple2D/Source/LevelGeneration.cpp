@@ -7,9 +7,8 @@
 **********************************************************************************************************************/
 #include "LevelGeneration.h"
 #include "Graphics.h"            //for drawing cheese and walls
-#include "Player.h"              //for setting players spawn position and wall collision
-#include "Enemy.h"               //for setting enemies spawn position and wall collision
-#include "Collision.h"           //for wall collision with player and enemy
+#include "Player.h"              //for setting players spawn position and collision
+#include "Collision.h"           //for collision checks for all/most objects
 #include "Grid.h"                //for initializing grid values
 
 /************************************************
@@ -42,9 +41,10 @@ void LevelGeneration::ReadFromFile(void)
 	DirectX::SimpleMath::Vector2 currentPos = { m_imageSize.x / 2.0f, m_imageSize.y / 2.0f};
 	uint32_t currentWidth = 0;
 	uint32_t currentHeight = 0;
+	float baseSpeed = 75.0f;
+	int speedVariant = 50;
 
 	Player& player = Player::GetInstance();
-	Enemy& enemy = Enemy::GetInstance();
 	Grid& grid = Grid::GetInstance();
 
 	grid.SetWidthAndHeight(m_mapWidth, m_mapHeight);
@@ -73,8 +73,8 @@ void LevelGeneration::ReadFromFile(void)
 			}
 			else if (value == 3) //enemy
 			{
-				m_startingEnemy = currentPos;
-				enemy.SetPosition(currentPos);
+				Enemy temp(baseSpeed + (rand() % speedVariant), currentPos);
+				m_enemy.push_back(temp);
 			}
 			else if (value == 4) //chese
 			{
@@ -150,14 +150,19 @@ void LevelGeneration::Init(void)
 
 /************************************************
 *
-* handles collisions for wall and cheese related
-* collisions and if cheese has been consumed
+* handles updating and collisons for walls,
+* cheese, and enemies
 *
 ************************************************/
-void LevelGeneration::Update(void)
+void LevelGeneration::Update(float _deltaTime)
 {
+	//update enemies
+	for (int k = 0; k < m_enemy.size(); ++k)
+	{
+		m_enemy[k].Update(_deltaTime);
+	}
+
 	Player& player = Player::GetInstance();
-	Enemy& enemy = Enemy::GetInstance();
 
 	bool isColliding = false;
 	DirectX::SimpleMath::Vector2 resolve = { 0,0 };
@@ -174,12 +179,35 @@ void LevelGeneration::Update(void)
 
 		//check for enemy colliding against walls
 		//box to box for enemy
-		isColliding = Collision::CheckCollision(enemy.GetPosition(),
-			enemy.GetSize(), m_wallPositions[k], m_imageSize);
-		
+		for (int j = 0; j < m_enemy.size(); ++j)
+		{
+			isColliding = Collision::CheckCollision(m_enemy[j].GetPosition(),
+				m_enemy[j].GetSize(), m_wallPositions[k], m_imageSize);
+
+			if (isColliding)
+			{
+				m_enemy[j].ResolveWallCollision(m_wallPositions[k], m_imageSize);
+			}
+		}
+	}
+
+	//player and enemy collisions
+	for (int k = 0; k < m_enemy.size(); ++k)
+	{
+		isColliding = Collision::CheckCollision(player.GetPosition(),
+			player.GetSize(), m_enemy[k].GetPosition(), m_enemy[k].GetSize());
+
 		if (isColliding)
 		{
-			enemy.ResolveWallCollision(m_wallPositions[k],m_imageSize);
+			player.AdjustLives(1);
+			player.AdjustScore(-100);
+
+			//not dead yet
+			if (player.GetLives() > 0)
+			{
+				//reset positions
+				ResetPlayerEnemyPositions();
+			}
 		}
 	}
 
@@ -207,7 +235,7 @@ void LevelGeneration::Update(void)
 
 /************************************************
 *
-* draw the walls and cheese
+* draw the walls, enemys, cheese
 *
 ************************************************/
 void LevelGeneration::Draw(void)
@@ -225,15 +253,27 @@ void LevelGeneration::Draw(void)
 	{
 		graphics.Draw(Graphics::Textures::cheese, m_cheese[k].GetPosition(), m_imageSize);
 	}
+
+	//enemy
+	for (int k = 0; k < m_enemy.size(); ++k)
+	{
+		graphics.Draw(Graphics::Textures::enemy, m_enemy[k].GetPosition(), m_imageSize);
+	}
 }
 
 /************************************************
 *
 * shutdown - clears wall and cheese vectors
+* shutdown enemies then clear
 *
 ************************************************/
 void LevelGeneration::Shutdown(void)
 {
+	for (int k = 0; k < m_enemy.size(); ++k)
+	{
+		m_enemy[k].Shutdown();
+	}
+	m_enemy.clear();
 	m_wallPositions.clear();
 	m_cheese.clear();
 }
@@ -257,10 +297,14 @@ DirectX::SimpleMath::Vector2 LevelGeneration::GetSize(void)
 void LevelGeneration::ResetPlayerEnemyPositions(void)
 {
 	Player& player = Player::GetInstance();
-	Enemy& enemy = Enemy::GetInstance();
 
 	player.SetPosition(m_startingPlayer);
-	enemy.SetPosition(m_startingEnemy);
+
+	for (int k = 0; k < m_enemy.size(); ++k)
+	{
+		m_enemy[k].SetPosition(m_enemy[k].GetStartPosition());
+		m_enemy[k].ResetPathing();
+	}
 }
 
 /************************************************

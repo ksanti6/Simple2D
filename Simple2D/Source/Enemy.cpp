@@ -6,19 +6,40 @@
 *
 **********************************************************************************************************************/
 #include "Enemy.h"
-#include "Graphics.h"   //for drawing
 #include "Player.h"    //for player position
 #include "Grid.h"      //for grid conversion functions
 
 /************************************************
 *
-* initialize all the data for the enemy
+* default constructor for the enemy
 *
 ************************************************/
-void Enemy::Init(void)
+Enemy::Enemy()
 {
-	m_position = { 400, 300 };
-	m_speed = 175.0f;
+	m_position = { 0, 0 };
+	m_startPosition = { 0,0 };
+	m_speed = 125.0f;
+	m_imageSize = { 50, 50 };
+	m_minDistance = 5.0f;
+	m_completedNodes = 0;
+
+	m_currentRequest.isNewRequest = true;
+	m_currentRequest.m_finalPath.clear();
+	m_currentRequest.m_start = { 0,0 };
+	m_currentRequest.m_target = { 0,0 };
+}
+
+/************************************************
+*
+* constructor for the enemy that specifies
+* speed and position
+*
+************************************************/
+Enemy::Enemy(float _speed, DirectX::SimpleMath::Vector2 _position)
+{
+	m_position = _position;
+	m_startPosition = _position;
+	m_speed = _speed;
 	m_imageSize = { 50, 50 };
 	m_minDistance = 5.0f;
 	m_completedNodes = 0;
@@ -81,17 +102,6 @@ void Enemy::Update(float _deltaTime)
 
 /************************************************
 *
-* draw the enemy
-*
-************************************************/
-void Enemy::Draw(void)
-{
-	Graphics& graphics = Graphics::GetInstance();
-	graphics.Draw(Graphics::Textures::enemy, m_position, m_imageSize);
-}
-
-/************************************************
-*
 * shutdown - surprisingly empty but here if needed
 *
 ************************************************/
@@ -136,23 +146,22 @@ void Enemy::FollowPlayer(void)
 
 /************************************************
 *
-* get an instance of the enemy
-*
-************************************************/
-Enemy& Enemy::GetInstance()
-{
-	static Enemy enemy;
-	return enemy;
-}
-
-/************************************************
-*
-* get the enemies current positions
+* get the enemies current position
 *
 ************************************************/
 DirectX::SimpleMath::Vector2 Enemy::GetPosition(void)
 {
 	return m_position;
+}
+
+/************************************************
+*
+* get the enemies spawn position
+*
+************************************************/
+DirectX::SimpleMath::Vector2 Enemy::GetStartPosition(void)
+{
+	return m_startPosition;
 }
 
 /************************************************
@@ -164,7 +173,6 @@ void Enemy::SetPosition(DirectX::SimpleMath::Vector2 _position)
 {
 	m_position = _position;
 }
-
 
 /************************************************
 *

@@ -7,9 +7,7 @@
 **********************************************************************************************************************/
 #include "GameScene.h"
 #include "Player.h"               //for all things player
-#include "LevelGeneration.h"      //for generating the level
-#include "Collision.h"            //for checking collision bt player and enemy
-#include "Enemy.h"                //for all things enemy
+#include "LevelGeneration.h"      //for generating the level and handling all non player objects
 #include "PathingAlgorithm.h"     //for initializing the A Star algorithm
 #include "Graphics.h"             //for drawing win and lose
 
@@ -35,9 +33,6 @@ void GameScene::Init(void)
 	Player& player = Player::GetInstance();
 	player.Init();
 
-	Enemy& enemy = Enemy::GetInstance();
-	enemy.Init();
-
 	LevelGeneration& level = LevelGeneration::GetInstance();
 	level.Init();
 
@@ -47,14 +42,13 @@ void GameScene::Init(void)
 
 /************************************************
 *
-* updates all the objects in game and checks for
-* collisions, and for win/lose conditions
+* updates all the objects in game and for 
+* win/lose conditions
 *
 ************************************************/
 void GameScene::Update(float _deltaTime)
 {
 	Player& player = Player::GetInstance();
-	Enemy& enemy = Enemy::GetInstance();
 	LevelGeneration& level = LevelGeneration::GetInstance();
 
 	//if the player has lost, dont update anymore
@@ -71,30 +65,10 @@ void GameScene::Update(float _deltaTime)
 		return;
 	}
 
-	//update the player and enemy, then check for collisions
+	//update the player and then the rest of the objects
+	//collision checks happen in the level update
 	player.Update(_deltaTime);
-	enemy.Update(_deltaTime);
-
-	level.Update();
-
-	bool isColliding = false;
-
-	isColliding = Collision::CheckCollision(player.GetPosition(),
-		player.GetSize(), enemy.GetPosition(), enemy.GetSize());
-
-	if (isColliding)
-	{
-		player.AdjustLives(1);
-		player.AdjustScore(-100);
-
-		//not dead yet
-		if (player.GetLives() > 0)
-		{
-			//reset positions
-			level.ResetPlayerEnemyPositions();
-			enemy.ResetPathing();
-		}
-	}
+	level.Update(_deltaTime);
 }
 
 /************************************************
@@ -105,7 +79,6 @@ void GameScene::Update(float _deltaTime)
 void GameScene::Draw(void)
 {
 	Player& player = Player::GetInstance();
-	Enemy& enemy = Enemy::GetInstance();
 	LevelGeneration& level = LevelGeneration::GetInstance();
 
 	//lose condition - draw lost screen
@@ -126,7 +99,6 @@ void GameScene::Draw(void)
 
 	level.Draw();
 	player.Draw();
-	enemy.Draw();
 }
 
 /************************************************
@@ -138,13 +110,11 @@ void GameScene::Draw(void)
 void GameScene::Shutdown(void)
 {
 	Player& player = Player::GetInstance();
-	Enemy& enemy = Enemy::GetInstance();
 	LevelGeneration& level = LevelGeneration::GetInstance();
 	PathingAlgorithm& algorithm = PathingAlgorithm::GetInstance();
 	Grid& grid = Grid::GetInstance();
 
 	player.Shutdown();
-	enemy.Shutdown();
 	level.Shutdown();
 	algorithm.Shutdown();
 	grid.Shutdown();

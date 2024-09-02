@@ -10,6 +10,7 @@
 #include<vector>                       //std vector
 #include <directxtk12/SimpleMath.h>    //vector2
 #include "Cheese.h"                    //we hold the cheese
+#include "Enemy.h"                     //we hold the enemies
 
 class LevelGeneration
 {
@@ -29,7 +30,7 @@ public:
 	static LevelGeneration& GetInstance(void);
 
 	void Init(void);
-	void Update(void);
+	void Update(float _deltaTime);
 	void Draw(void);
 	void Shutdown(void);
 
@@ -47,11 +48,11 @@ private:
 	int m_mapWidth;                                             //width in BLOCKS of the map
 	int m_mapHeight;                                            //height in BLOCKS of the map
 
-	DirectX::SimpleMath::Vector2 m_startingEnemy;               //enemy position from read in file
 	DirectX::SimpleMath::Vector2 m_startingPlayer;              //player position from read in file
 
 	DirectX::SimpleMath::Vector2 m_imageSize;                   //W x H of all objects on the map
 
 	std::vector<DirectX::SimpleMath::Vector2> m_wallPositions;  //container of wall positions for collision
 	std::vector<Cheese> m_cheese;                               //container of all cheese objects
+	std::vector<Enemy> m_enemy;                                 //container of all enemy objects
 };

@@ -54,7 +54,6 @@ namespace Collision
 		float _CircleRadius, DirectX::SimpleMath::Vector2 _BoxPosition, 
 		DirectX::SimpleMath::Vector2 _BoxWidthHeight)
 	{
-		
 		DirectX::SimpleMath::Vector2 resolve = { 0,0 };
 
 		float closerX = std::max(_BoxPosition.x - _BoxWidthHeight.x / 2.0f, std::min(_CirclePosition.x, _BoxPosition.x + _BoxWidthHeight.x / 2.0f));

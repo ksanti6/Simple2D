@@ -40,7 +40,7 @@ const std::map<Graphics::Textures, std::wstring> textPaths =
 		Graphics::Textures::enemy, L"./Asset/CatGuy.png"
 	},
 	{
-		Graphics::Textures::wall, L"./Asset/TestTile.png"
+		Graphics::Textures::wall, L"./Asset/WallBlock.png"
 	},
 	{
 		Graphics::Textures::cheese, L"./Asset/BetterCheese.png"
