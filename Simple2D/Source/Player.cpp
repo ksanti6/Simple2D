@@ -21,7 +21,7 @@ void Player::Init(void)
 	m_lives = 3;
 	m_position = { 0, 0 };
 	m_speed = 200.0f;
-	m_imageSize = { 45, 45 };
+	m_imageSize = { 40, 40 };
 
 	printf_s("Player Lives: %i\n", m_lives);
 }
@@ -44,8 +44,8 @@ void Player::Update(float _deltaTime)
 void Player::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
-	//draw the player just a tiny bit bigger than the hit box
-	graphics.Draw(Graphics::Textures::player, m_position, { m_imageSize.x + 5.0f, m_imageSize.y + 5.0f });
+	
+	graphics.Draw(Graphics::Textures::player, m_position, m_imageSize);
 }
 
 /************************************************
@@ -148,40 +148,6 @@ DirectX::SimpleMath::Vector2 Player::GetPosition(void)
 void Player::SetPosition(DirectX::SimpleMath::Vector2 _position)
 {
 	m_position = _position;
-}
-
-/************************************************
-*
-* resolving player collision with a wall tile
-* (the player cannot walk through walls)
-*
-************************************************/
-void Player::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition, 
-	DirectX::SimpleMath::Vector2 _BWidthHeight)
-{
-	DirectX::SimpleMath::Vector2 v = m_position - _BPosition;
-	if (abs(v.x) > abs(v.y))
-	{
-		if (v.x > 0) // right
-		{
-			m_position.x += ((m_imageSize.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
-		}
-		else // left
-		{
-			m_position.x -= ((m_imageSize.x + _BWidthHeight.x) / 2.0f) - abs(v.x);
-		}
-	}
-	else
-	{
-		if (v.y > 0) // top
-		{
-			m_position.y += ((m_imageSize.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
-		}
-		else // bottom
-		{
-			m_position.y -= ((m_imageSize.y + _BWidthHeight.y) / 2.0f) - abs(v.y);
-		}
-	}
 }
 
 /************************************************

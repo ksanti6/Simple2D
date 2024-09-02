@@ -34,9 +34,6 @@ public:
 	void SetPosition(DirectX::SimpleMath::Vector2 _position);
 
 
-	void ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
-		DirectX::SimpleMath::Vector2 _BWidthHeight);
-
 	void AdjustScore(int _value);
 	void AdjustLives(int _value);
 

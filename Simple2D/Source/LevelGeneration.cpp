@@ -160,20 +160,20 @@ void LevelGeneration::Update(void)
 	Enemy& enemy = Enemy::GetInstance();
 
 	bool isColliding = false;
+	DirectX::SimpleMath::Vector2 resolve = { 0,0 };
 
 	//wall collisions
 	for (int k = 0; k < m_wallPositions.size(); ++k)
 	{
 		//check for player colliding against walls
-		isColliding = Collision::CheckCollision(player.GetPosition(),
-			player.GetSize(), m_wallPositions[k], m_imageSize);
+		//we use circle box collision for player for smoother rounding of corners
+		resolve = Collision::CheckResolveCircleBoxCollision(player.GetPosition(), player.GetSize().x / 2.0f,
+			m_wallPositions[k], m_imageSize);
 
-		if (isColliding)
-		{
-			player.ResolveWallCollision(m_wallPositions[k], m_imageSize);
-		}
+		player.SetPosition(player.GetPosition() + resolve);
 
 		//check for enemy colliding against walls
+		//box to box for enemy
 		isColliding = Collision::CheckCollision(enemy.GetPosition(),
 			enemy.GetSize(), m_wallPositions[k], m_imageSize);
 		
