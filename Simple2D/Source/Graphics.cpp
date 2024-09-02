@@ -20,16 +20,16 @@ return hr; \
 const std::map<Graphics::Textures, std::wstring> textPaths =
 {
 	{
-		Graphics::Textures::player, L"./Asset/HappyCircle.png"
+		Graphics::Textures::player, L"./Asset/MouseGuy.png"
 	},
 	{
-		Graphics::Textures::enemy, L"./Asset/AngryPentagon.png"
+		Graphics::Textures::enemy, L"./Asset/CatGuy.png"
 	},
 	{
 		Graphics::Textures::wall, L"./Asset/TestTile.png"
 	},
 	{
-		Graphics::Textures::cheese, L"./Asset/TestCheese.png"
+		Graphics::Textures::cheese, L"./Asset/BetterCheese.png"
 	},
 	{
 		Graphics::Textures::win, L"./Asset/Win.png"
