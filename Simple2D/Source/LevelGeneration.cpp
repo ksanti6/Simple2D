@@ -5,11 +5,12 @@
 #include "Enemy.h"
 #include "Collision.h"
 #include "Grid.h"
+#include <random>
 
 void LevelGeneration::ReadFromFile(void)
 {
 	FILE* file;
-	fopen_s(&file, m_filePath.c_str(), "rt");
+	fopen_s(&file, m_filePath[m_currentLevel].c_str(), "rt");
 
 	if (!file)
 	{
@@ -54,10 +55,12 @@ void LevelGeneration::ReadFromFile(void)
 
 			if (value == 2)
 			{
+				m_startingPlayer = currentPos;
 				player.SetPosition(currentPos);
 			}
 			else if (value == 3)
 			{
+				m_startingEnemy = currentPos;
 				enemy.SetPosition(currentPos);
 			}
 			else if (value == 4)
@@ -106,7 +109,15 @@ LevelGeneration& LevelGeneration::GetInstance(void)
 
 void LevelGeneration::Init(void)
 {
-	m_filePath = "./Asset/TestLevel.txt";
+	srand(time(0));
+
+	m_filePath.push_back("./Asset/Level_A.txt");
+	m_filePath.push_back("./Asset/Level_B.txt");
+	m_filePath.push_back("./Asset/Level_C.txt");
+	m_filePath.push_back("./Asset/Level_D.txt");
+
+	m_currentLevel = rand() % m_filePath.size();
+	
 	m_imageSize = { 50, 50 };
 
 	ReadFromFile();
@@ -181,6 +192,7 @@ void LevelGeneration::Draw(void)
 void LevelGeneration::Shutdown(void)
 {
 	m_wallPositions.clear();
+	m_cheese.clear();
 }
 
 std::vector<DirectX::SimpleMath::Vector2> LevelGeneration::GetWallPositions(void)
@@ -196,4 +208,14 @@ std::vector<Cheese> LevelGeneration::GetCheese(void)
 DirectX::SimpleMath::Vector2 LevelGeneration::GetSize(void)
 {
 	return m_imageSize;
+}
+
+void LevelGeneration::ResetPlayerEnemyPositions(void)
+{
+
+	Player& player = Player::GetInstance();
+	Enemy& enemy = Enemy::GetInstance();
+
+	player.SetPosition(m_startingPlayer);
+	enemy.SetPosition(m_startingEnemy);
 }

@@ -9,8 +9,7 @@ private:
 	{
 		m_speed = 0.0f;
 		m_minDistance = 0.0f;
-		m_pathCalculationComplete = false;
-		m_takingPathComplete = false;
+		m_completedNodes = 0;
 	}
 	Enemy(const Enemy&) = delete;
 	void operator= (const Enemy&) = delete;
@@ -37,9 +36,8 @@ public:
 
 private:
 	float m_speed;
-	bool m_pathCalculationComplete;
-	bool m_takingPathComplete;
 	float m_minDistance;
+	int m_completedNodes;
 	PathingAlgorithm::Request m_currentRequest;
 
 	DirectX::SimpleMath::Vector2 m_position;

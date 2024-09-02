@@ -178,3 +178,8 @@ DirectX::SimpleMath::Vector2 Grid::GridtoWorld(DirectX::XMUINT2 _gridPosition)
 
 	return position;
 }
+
+void Grid::Shutdown(void)
+{
+	m_grid.clear();
+}

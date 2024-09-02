@@ -37,9 +37,11 @@ public:
 	void ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 		DirectX::SimpleMath::Vector2 _BWidthHeight);
 
-	void ResolveEnemyCollision(void);
-
 	void AdjustScore(int _value);
+
+	void AdjustLives(int _value);
+
+	int GetLives(void);
 
 	DirectX::SimpleMath::Vector2 GetSize(void);
 

@@ -28,6 +28,8 @@ private:
 
 	void InsertNode(Grid::Node* _node);
 
+	
+
 public:
 
 	struct Request
@@ -44,6 +46,8 @@ public:
 	void Init(void);
 
 	bool TheAlgorithm(Request& _request);
+
+	void Shutdown(void);
 
 private:
 	DirectX::XMUINT2 m_target;

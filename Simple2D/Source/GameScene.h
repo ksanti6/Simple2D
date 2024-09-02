@@ -20,6 +20,8 @@ public:
 	void Draw(void);
 	void Shutdown(void);
 
+	void Reset(void);
+
 private:
 	
 	float m_timer;

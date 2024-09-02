@@ -36,11 +36,19 @@ public:
 
 	DirectX::SimpleMath::Vector2 GetSize(void);
 
+	void ResetPlayerEnemyPositions(void);
+
 private:
 
-	std::string m_filePath;
+	std::vector<std::string> m_filePath;
+
+	int m_currentLevel;
+
 	int m_mapWidth;
 	int m_mapHeight;
+
+	DirectX::SimpleMath::Vector2 m_startingEnemy;
+	DirectX::SimpleMath::Vector2 m_startingPlayer;
 
 	DirectX::SimpleMath::Vector2 m_imageSize;
 

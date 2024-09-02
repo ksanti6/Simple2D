@@ -53,6 +53,8 @@ public:
 	DirectX::XMUINT2 WorldtoGrid(DirectX::SimpleMath::Vector2 _position);
 	DirectX::SimpleMath::Vector2 GridtoWorld(DirectX::XMUINT2 _gridPosition);
 
+	void Shutdown(void);
+
 private:
 	int m_gridWidth;
 	int m_gridHeight;

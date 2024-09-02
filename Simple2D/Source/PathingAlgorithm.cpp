@@ -34,7 +34,8 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 
 		m_target = _request.m_target;
 		grid.ClearNodes();
-
+		m_openList.clear();
+		m_sortedOpenList = std::priority_queue<Grid::Node*, std::vector<Grid::Node*>, Compare>(Compare(), m_openList);
 		//clear priority queue?
 	    //push starting node to the open list with cost of ?????
 
@@ -52,7 +53,7 @@ bool PathingAlgorithm::TheAlgorithm(Request& _request)
 		if ((parent->m_position.x == m_target.x) && (parent->m_position.y == m_target.y))
 		{
 			Grid::Node* n = parent;
-
+			//_request.m_finalPath.clear();
 			while (true)
 			{
 				_request.m_finalPath.push_back(n->m_position);
@@ -198,6 +199,14 @@ void PathingAlgorithm::InsertNode(Grid::Node* _node)
 {
 	_node->m_onList = true;
 	m_sortedOpenList.push(_node);
+}
+
+void PathingAlgorithm::Shutdown(void)
+{
+	m_openList.clear();
+	m_sortedOpenList = std::priority_queue<Grid::Node*, std::vector<Grid::Node*>, Compare>(Compare(), m_openList);
+	m_target = { 0,0 };
+
 }
 
 

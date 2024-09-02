@@ -150,28 +150,22 @@ void Player::ResolveWallCollision(DirectX::SimpleMath::Vector2 _BPosition,
 	}
 }
 
-void Player::ResolveEnemyCollision(void)
-{
-	--m_lives;
-	printf_s("Player Lives: %i\n", m_lives);
-	
-	if (m_lives == 0)
-	{
-		//gaem over
-	}
-	else
-	{
-		//reset positions of player and enemy
-	}
-
-	
-
-}
 
 void Player::AdjustScore(int _value)
 {
 	m_score += _value;
 	printf_s("Player Score: %i\n", m_score);
+}
+
+void Player::AdjustLives(int _value)
+{
+	m_lives -= _value;
+	printf_s("Player Lives: %i\n", m_lives);
+}
+
+int Player::GetLives(void)
+{
+	return m_lives;
 }
 
 DirectX::SimpleMath::Vector2 Player::GetSize(void)
