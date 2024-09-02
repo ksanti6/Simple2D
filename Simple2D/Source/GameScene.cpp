@@ -85,6 +85,7 @@ void GameScene::Update(float _deltaTime)
 	if (isColliding)
 	{
 		player.AdjustLives(1);
+		player.AdjustScore(-100);
 
 		//not dead yet
 		if (player.GetLives() > 0)

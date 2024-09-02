@@ -21,7 +21,7 @@ void Player::Init(void)
 	m_lives = 3;
 	m_position = { 0, 0 };
 	m_speed = 200.0f;
-	m_imageSize = { 50, 50 };
+	m_imageSize = { 45, 45 };
 
 	printf_s("Player Lives: %i\n", m_lives);
 }
@@ -44,8 +44,8 @@ void Player::Update(float _deltaTime)
 void Player::Draw(void)
 {
 	Graphics& graphics = Graphics::GetInstance();
-
-	graphics.Draw(Graphics::Textures::player, m_position, m_imageSize);
+	//draw the player just a tiny bit bigger than the hit box
+	graphics.Draw(Graphics::Textures::player, m_position, { m_imageSize.x + 5.0f, m_imageSize.y + 5.0f });
 }
 
 /************************************************
@@ -219,7 +219,7 @@ int Player::GetLives(void)
 
 /************************************************
 *
-* getter - space occupied by player
+* getter - w x h of player
 *
 ************************************************/
 DirectX::SimpleMath::Vector2 Player::GetSize(void)

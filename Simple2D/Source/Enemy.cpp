@@ -18,7 +18,7 @@
 void Enemy::Init(void)
 {
 	m_position = { 400, 300 };
-	m_speed = 125.0f;
+	m_speed = 175.0f;
 	m_imageSize = { 50, 50 };
 	m_minDistance = 5.0f;
 	m_completedNodes = 0;
@@ -76,7 +76,7 @@ void Enemy::Update(float _deltaTime)
 	DirectX::SimpleMath::Vector2 direction = target - m_position;
 
 	direction.Normalize();
-	m_position += direction * 200.0f * _deltaTime;
+	m_position += direction * m_speed * _deltaTime;
 }
 
 /************************************************
