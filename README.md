@@ -5,7 +5,8 @@
 [3. Goal](#goal)  
 [4. Results](#results)   
 [5. Where to Play](#where-to-play)  
-[6. Pictures](#pictures)
+[6. Pictures](#pictures)  
+[7. Links](#links)
 
 ## Info
 **Date:** September 2024  
@@ -69,3 +70,7 @@ Level 4
   
 What console output looks like. Player lives and score is output here.  
 ![alt text](Screenshots/Example_Console_Output.png)  
+
+## Links
+
+[My Portfolio](https://github.com/ksanti6/portfolio)  
